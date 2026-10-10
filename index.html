@@ -169,11 +169,18 @@ footer { text-align:center; padding:30px 15px; border-top:1px solid var(--line);
       <input id="phone" type="tel" placeholder="01XXXXXXXXX">
 
       <label for="payment">Payment Method</label>
-      <select id="payment">
+      <select id="payment" onchange="showPaymentNumber()">
         <option value="bKash">bKash</option>
         <option value="Nagad">Nagad</option>
         <option value="Card">Card</option>
       </select>
+
+      <div id="paymentNumberBox" class="notice">
+        <strong id="paymentNumberTitle">bKash Payment Number</strong><br>
+        <span id="paymentNumber">01789787273</span>
+        <button type="button" class="secondary" onclick="copyPaymentNumber()">Copy Number</button>
+        <p style="margin-bottom:0">Please send payment to this number, then submit your order. Payment is not automatically verified.</p>
+      </div>
 
       <div class="notice">
         Check your account ID carefully. This demo records an order but does not process payments or automatically deliver top-ups.
@@ -575,6 +582,27 @@ function openCheckout(product) {
 function cancelCheckout() {
   selectedProduct = null;
   $("checkoutPanel").classList.add("hidden");
+}
+
+function showPaymentNumber() {
+  const method = $("payment").value;
+  const box = $("paymentNumberBox");
+  if (method === "bKash" || method === "Nagad") {
+    $("paymentNumberTitle").textContent = method + " Payment Number";
+    $("paymentNumber").textContent = "01789787273";
+    box.classList.remove("hidden");
+  } else {
+    box.classList.add("hidden");
+  }
+}
+
+async function copyPaymentNumber() {
+  try {
+    await navigator.clipboard.writeText("01789787273");
+    $("paymentNumberTitle").textContent = "Payment number copied!";
+  } catch (error) {
+    showError("Could not copy automatically. Please copy the number: 01789787273");
+  }
 }
 
 async function placeOrder() {
