@@ -1,11 +1,11 @@
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#020817">
-<title>NEXA TOPUP — Premium Store</title>
+<title>NEXA TOPUP — বাংলাদেশের টপ-আপ স্টোর</title>
 
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
@@ -44,7 +44,7 @@ header {
 .brand { font-size:clamp(19px,3vw,25px); font-weight:950; letter-spacing:.4px; color:#f1f8ff; text-shadow:0 0 18px rgba(0,195,255,.2); }
 .brand::first-letter { color:#9b4dff; }
 .header-actions { display:flex; align-items:center; gap:9px; flex-wrap:wrap; }
-#userEmail { font-size:12px; color:var(--muted); overflow-wrap:anywhere; }
+#userইমেইল { font-size:12px; color:var(--muted); overflow-wrap:anywhere; }
 main { max-width:1150px; margin:28px auto; padding:0 16px 60px; }
 .panel {
   position:relative; padding:22px; margin-bottom:18px;
@@ -105,7 +105,7 @@ footer { text-align:center; padding:30px 15px; border-top:1px solid rgba(0,174,2
   .products { grid-template-columns:repeat(auto-fit,minmax(145px,1fr)); gap:10px; }
   .product { padding:13px; }
   .price { font-size:19px; }
-  #userEmail { max-width:100%; }
+  #userইমেইল { max-width:100%; }
 }
 @media(prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto!important; transition:none!important; } }
 </style>
@@ -116,55 +116,55 @@ footer { text-align:center; padding:30px 15px; border-top:1px solid rgba(0,174,2
 <header>
   <div class="brand">⚡ NEXA TOPUP</div>
   <div class="header-actions">
-    <span id="userEmail">Not signed in</span>
-    <button id="loginBtn" type="button" onclick="login()">Google Login</button>
-    <button id="logoutBtn" class="secondary hidden" onclick="logout()">Logout</button>
+    <span id="userইমেইল">লগইন করা নেই</span>
+    <button id="loginBtn" type="button" onclick="login()">গুগল দিয়ে লগইন</button>
+    <button id="logoutBtn" class="secondary hidden" onclick="logout()">লগআউট</button>
   </div>
 </header>
 
 <main>
   <section id="welcome" class="panel">
-    <h1>Power Up Your Digital World.</h1>
-    <p>Premium gaming top-ups, mobile recharge and digital products.</p>
+    <h1>আপনার ডিজিটাল দুনিয়াকে শক্তিশালী করুন।</h1>
+    <p>গেমিং টপ-আপ, মোবাইল রিচার্জ ও ডিজিটাল পণ্য সহজে কিনুন।</p>
     <div class="notice">
-      Sign in with Google to continue. Your account will be classified as Admin or Customer.
+      চালিয়ে যেতে Google দিয়ে লগইন করুন। আপনার অ্যাকাউন্ট Admin অথবা কাস্টমার হিসেবে নির্ধারিত হবে।
     </div>
     <br>
-    <button type="button" onclick="login()">Continue with Google →</button>
+    <button type="button" onclick="login()">Google দিয়ে চালিয়ে যান →</button>
   </section>
 
   <!-- ADMIN PANEL -->
   <section id="adminPanel" class="hidden">
     <div class="panel">
-      <h1>🛡️ Admin Dashboard</h1>
-      <p>Administrator access • NEXA TOPUP</p>
+      <h1>🛡️ অ্যাডমিন ড্যাশবোর্ড</h1>
+      <p>অ্যাডমিন অ্যাক্সেস • NEXA TOPUP</p>
       <div class="grid">
-        <div class="stat"><span>Total Orders</span><strong id="totalOrders">0</strong></div>
-        <div class="stat"><span>Pending</span><strong id="pendingOrders">0</strong></div>
-        <div class="stat"><span>Processing</span><strong id="processingOrders">0</strong></div>
-        <div class="stat"><span>Completed</span><strong id="completedOrders">0</strong></div>
+        <div class="stat"><span>মোট অর্ডার</span><strong id="totalঅর্ডার">0</strong></div>
+        <div class="stat"><span>অপেক্ষমাণ</span><strong id="pendingঅর্ডার">0</strong></div>
+        <div class="stat"><span>প্রক্রিয়াধীন</span><strong id="processingঅর্ডার">0</strong></div>
+        <div class="stat"><span>সম্পন্ন</span><strong id="completedঅর্ডার">0</strong></div>
       </div>
     </div>
 
     <div class="panel">
-      <h2>📦 All Orders</h2>
+      <h2>📦 সব অর্ডার</h2>
       <div class="table-wrap">
         <table>
           <thead><tr>
-            <th>Order ID</th><th>Customer</th><th>Product</th>
-            <th>Account ID</th><th>Total</th><th>TrxID</th><th>Status</th><th>Action</th>
+            <th>অর্ডার আইডি</th><th>কাস্টমার</th><th>পণ্য</th>
+            <th>অ্যাকাউন্ট আইডি</th><th>মোট টাকা</th><th>ট্রানজ্যাকশন আইডি</th><th>স্ট্যাটাস</th><th>অ্যাকশন</th>
           </tr></thead>
-          <tbody id="adminOrders"><tr><td colspan="8">Waiting for login...</td></tr></tbody>
+          <tbody id="adminঅর্ডার"><tr><td colspan="8">লগইনের অপেক্ষায়...</td></tr></tbody>
         </table>
       </div>
     </div>
 
     <div class="panel">
-      <h2>👥 Customer List</h2>
+      <h2>👥 কাস্টমার List</h2>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Name</th><th>Email</th><th>Orders</th></tr></thead>
-          <tbody id="customerList"><tr><td colspan="3">No customers loaded.</td></tr></tbody>
+          <thead><tr><th>নাম</th><th>ইমেইল</th><th>অর্ডার</th></tr></thead>
+          <tbody id="customerList"><tr><td colspan="3">কোনো কাস্টমার লোড হয়নি।</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -173,23 +173,23 @@ footer { text-align:center; padding:30px 15px; border-top:1px solid rgba(0,174,2
   <!-- CUSTOMER PANEL -->
   <section id="customerPanel" class="hidden">
     <div class="panel">
-      <h1>👤 Customer Panel</h1>
+      <h1>👤 কাস্টমার Panel</h1>
       <p id="customerGreeting"></p>
-      <h2>Choose a Top Up</h2>
+      <h2>টপ-আপ বেছে নিন</h2>
       <div class="products" id="products"></div>
     </div>
 
     <div id="checkoutPanel" class="panel hidden">
-      <h2>Complete Your Order</h2>
-      <div id="selectedProduct" class="notice"></div>
+      <h2>অর্ডার সম্পন্ন করুন</h2>
+      <div id="selectedপণ্য" class="notice"></div>
 
-      <label for="accountId">Player ID / UID / Account</label>
-      <input id="accountId" placeholder="Enter the correct account ID">
+      <label for="accountId">প্লেয়ার আইডি / UID / অ্যাকাউন্ট</label>
+      <input id="accountId" placeholder="সঠিক অ্যাকাউন্ট আইডি লিখুন">
 
-      <label for="phone">Contact Number</label>
+      <label for="phone">যোগাযোগের মোবাইল নম্বর</label>
       <input id="phone" type="tel" placeholder="01XXXXXXXXX">
 
-      <label for="payment">Payment Method</label>
+      <label for="payment">পেমেন্ট পদ্ধতি</label>
       <select id="payment" onchange="showPaymentNumber()">
         <option value="bKash">bKash</option>
         <option value="Nagad">Nagad</option>
@@ -197,46 +197,46 @@ footer { text-align:center; padding:30px 15px; border-top:1px solid rgba(0,174,2
       </select>
 
       <div id="paymentNumberBox" class="notice">
-        <strong id="paymentNumberTitle">bKash Payment Number</strong><br>
+        <strong id="paymentNumberTitle">বিকাশ পেমেন্ট নম্বর</strong><br>
         <span id="paymentNumber">01789787273</span>
-        <button type="button" class="secondary" onclick="copyPaymentNumber()">Copy Number</button>
-        <p style="margin-bottom:0">Send Money to this number, then enter your Transaction ID below. Your payment will still need manual verification.</p>
+        <button type="button" class="secondary" onclick="copyPaymentNumber()">নম্বর কপি করুন</button>
+        <p style="margin-bottom:0">এই নম্বরে Send Money করুন, তারপর নিচে TrxID লিখুন। পেমেন্ট ম্যানুয়ালি যাচাই করা হবে।</p>
       </div>
 
       <div id="transactionIdBox">
-        <label for="transactionId">bKash / Nagad Transaction ID (TrxID)</label>
-        <input id="transactionId" placeholder="Enter the TrxID after sending payment" autocomplete="off">
+        <label for="transactionId">bKash / Nagad Transaction ID (ট্রানজ্যাকশন আইডি)</label>
+        <input id="transactionId" placeholder="Enter the ট্রানজ্যাকশন আইডি after sending payment" autocomplete="off">
       </div>
 
       <div class="notice">
-        Check your account ID carefully. This demo records an order but does not process payments or automatically deliver top-ups.
+        অ্যাকাউন্ট আইডি ভালোভাবে যাচাই করুন। এই সাইট অর্ডার রেকর্ড করে, তবে পেমেন্ট যাচাই বা স্বয়ংক্রিয় টপ-আপ ডেলিভারি করে না।
       </div>
       <br>
-      <button id="submitOrderBtn" onclick="placeOrder()">Submit Order</button>
-      <button class="secondary" onclick="cancelCheckout()">Cancel</button>
+      <button id="submitOrderBtn" onclick="placeOrder()">অর্ডার দিন</button>
+      <button class="secondary" onclick="cancelCheckout()">বাতিল</button>
       <div id="orderMessage" class="message hidden"></div>
     </div>
 
     <div class="panel">
-      <h2>🧾 My Orders</h2>
+      <h2>🧾 My অর্ডার</h2>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Order ID</th><th>Product</th><th>Total</th><th>Status</th><th>Date</th></tr></thead>
-          <tbody id="myOrders"><tr><td colspan="5">Loading...</td></tr></tbody>
+          <thead><tr><th>অর্ডার আইডি</th><th>পণ্য</th><th>মোট টাকা</th><th>স্ট্যাটাস</th><th>তারিখ</th></tr></thead>
+          <tbody id="myঅর্ডার"><tr><td colspan="5">লোড হচ্ছে...</td></tr></tbody>
         </table>
       </div>
     </div>
   </section>
 
   <section id="setupInfo" class="panel hidden">
-    <h2>Setup Required</h2>
+    <h2>সেটআপ প্রয়োজন</h2>
     <p id="setupMessage"></p>
   </section>
 
   <section id="errorBox" class="panel error hidden" role="alert"></section>
 </main>
 
-<footer>© 2026 NEXA TOPUP • Premium Digital Store</footer>
+<footer>© 2026 NEXA TOPUP • ডিজিটাল পণ্যের স্টোর</footer>
 
 <script>
 "use strict";
@@ -260,21 +260,21 @@ const firebaseConfig = {
 const ADMIN_EMAIL = "kingofhaven744@gmail.com";
 
 const PRODUCTS = [
-  {id:"ff-diamonds",name:"Free Fire Diamonds",description:"Free Fire diamond top-up",price:89,icon:"🔥",label:"PLAYER ID / UID"},
-  {id:"pubg-uc",name:"PUBG Mobile UC",description:"PUBG UC top-up",price:120,icon:"🎯",label:"PLAYER ID"},
-  {id:"mlbb-diamonds",name:"Mobile Legends",description:"MLBB diamond top-up",price:149,icon:"⚔️",label:"USER ID"},
-  {id:"robux",name:"Roblox Robux",description:"Robux digital product",price:399,icon:"🧱",label:"USERNAME"},
-  {id:"cod-cp",name:"COD Mobile CP",description:"Call of Duty Mobile",price:299,icon:"🎮",label:"PLAYER ID"},
-  {id:"mobile-recharge",name:"Mobile Recharge",description:"Mobile balance recharge",price:100,icon:"📱",label:"MOBILE NUMBER"},
-  {id:"google-play",name:"Google Play",description:"Digital gift balance",price:299,icon:"▶️",label:"EMAIL / ACCOUNT"},
-  {id:"steam-wallet",name:"Steam Wallet",description:"Steam digital wallet",price:599,icon:"🕹️",label:"STEAM ACCOUNT"}
+  {id:"ff-diamonds",name:"ফ্রি ফায়ার ডায়মন্ড",description:"ফ্রি ফায়ার ডায়মন্ড টপ-আপ",price:89,icon:"🔥",label:"প্লেয়ার আইডি / UID"},
+  {id:"pubg-uc",name:"PUBG Mobile UC",description:"PUBG UC টপ-আপ",price:120,icon:"🎯",label:"প্লেয়ার আইডি"},
+  {id:"mlbb-diamonds",name:"মোবাইল লেজেন্ডস",description:"MLBB ডায়মন্ড টপ-আপ",price:149,icon:"⚔️",label:"ইউজার আইডি"},
+  {id:"robux",name:"Roblox Robux",description:"Robux ডিজিটাল পণ্য",price:399,icon:"🧱",label:"ইউজারনেম"},
+  {id:"cod-cp",name:"COD Mobile CP",description:"Call of Duty Mobile",price:299,icon:"🎮",label:"প্লেয়ার আইডি"},
+  {id:"mobile-recharge",name:"মোবাইল রিচার্জ",description:"মোবাইল ব্যালেন্স রিচার্জ",price:100,icon:"📱",label:"মোবাইল নম্বর"},
+  {id:"google-play",name:"Google Play",description:"ডিজিটাল গিফট ব্যালেন্স",price:299,icon:"▶️",label:"ইমেইল / অ্যাকাউন্ট"},
+  {id:"steam-wallet",name:"Steam Wallet",description:"Steam ডিজিটাল ওয়ালেট",price:599,icon:"🕹️",label:"Steam অ্যাকাউন্ট"}
 ];
 
 let auth = null;
 let db = null;
 let currentUser = null;
-let selectedProduct = null;
-let unsubscribeOrders = null;
+let selectedপণ্য = null;
+let unsubscribeঅর্ডার = null;
 let loginInProgress = false;
 
 const $ = id => document.getElementById(id);
@@ -303,9 +303,9 @@ function money(value) {
   return "৳" + Number(value || 0).toLocaleString("en-BD");
 }
 function cleanupListener() {
-  if (unsubscribeOrders) {
-    unsubscribeOrders();
-    unsubscribeOrders = null;
+  if (unsubscribeঅর্ডার) {
+    unsubscribeঅর্ডার();
+    unsubscribeঅর্ডার = null;
   }
 }
 function hidePanels() {
@@ -362,7 +362,7 @@ if (!isConfigured()) {
       if (user.email.toLowerCase() === ADMIN_EMAIL) {
         showAdmin();
       } else {
-        showCustomer(user);
+        showকাস্টমার(user);
       }
     });
   } catch (error) {
@@ -374,7 +374,7 @@ if (!isConfigured()) {
 async function login() {
   if (!auth) {
     showSetup(
-      "Google Login is not ready. Open Firebase Console > Project settings > Your apps, " +
+      "গুগল দিয়ে লগইন is not ready. Open Firebase Console > Project settings > Your apps, " +
       "copy the real apiKey and appId into this file, enable Google in Authentication > Sign-in method, " +
       "and add this website domain under Authentication > Settings > Authorized domains."
     );
@@ -418,7 +418,7 @@ async function logout() {
     try {
       await auth.signOut();
     } catch (error) {
-      showError("Logout failed: " + error.message);
+      showError("লগআউট failed: " + error.message);
     }
   }
 }
@@ -426,13 +426,13 @@ async function logout() {
 function showSignedOut() {
   hidePanels();
   $("welcome").classList.remove("hidden");
-  $("userEmail").textContent = "Not signed in";
+  $("userইমেইল").textContent = "লগইন করা নেই";
   $("loginBtn").classList.remove("hidden");
   $("logoutBtn").classList.add("hidden");
 }
 
 function showSignedIn(user) {
-  $("userEmail").textContent = user.email;
+  $("userইমেইল").textContent = user.email;
   $("loginBtn").classList.add("hidden");
   $("logoutBtn").classList.remove("hidden");
   hideSetup();
@@ -443,24 +443,24 @@ function showAdmin() {
   hidePanels();
   $("adminPanel").classList.remove("hidden");
 
-  unsubscribeOrders = db.collection("orders")
+  unsubscribeঅর্ডার = db.collection("orders")
     .onSnapshot(snapshot => {
       const orders = snapshot.docs.map(doc => ({id:doc.id,...doc.data()}));
-      renderAdminOrders(orders);
+      renderAdminঅর্ডার(orders);
       renderStats(orders);
-      renderCustomers(orders);
+      renderকাস্টমারs(orders);
     }, error => showError("Cannot load orders: " + error.message));
 }
 
 function renderStats(orders) {
-  $("totalOrders").textContent = orders.length;
-  $("pendingOrders").textContent = orders.filter(o => (o.status || "Pending") === "Pending").length;
-  $("processingOrders").textContent = orders.filter(o => o.status === "Processing").length;
-  $("completedOrders").textContent = orders.filter(o => o.status === "Completed").length;
+  $("totalঅর্ডার").textContent = orders.length;
+  $("pendingঅর্ডার").textContent = orders.filter(o => (o.status || "অপেক্ষমাণ") === "অপেক্ষমাণ").length;
+  $("processingঅর্ডার").textContent = orders.filter(o => o.status === "প্রক্রিয়াধীন").length;
+  $("completedঅর্ডার").textContent = orders.filter(o => o.status === "সম্পন্ন").length;
 }
 
-function renderAdminOrders(orders) {
-  const body = $("adminOrders");
+function renderAdminঅর্ডার(orders) {
+  const body = $("adminঅর্ডার");
   body.replaceChildren();
 
   if (!orders.length) {
@@ -478,11 +478,11 @@ function renderAdminOrders(orders) {
     const tr = document.createElement("tr");
     [
       order.id,
-      order.customerEmail || "—",
+      order.customerইমেইল || "—",
       order.product || "—",
       order.accountId || "—",
       money(order.total),
-      order.status || "Pending"
+      order.status || "অপেক্ষমাণ"
     ].forEach(value => {
       const td = document.createElement("td");
       td.textContent = value;
@@ -492,24 +492,24 @@ function renderAdminOrders(orders) {
     const action = document.createElement("td");
     const select = document.createElement("select");
 
-    ["Pending","Processing","Completed","Cancelled"].forEach(status => {
+    ["অপেক্ষমাণ","প্রক্রিয়াধীন","সম্পন্ন","বাতিলled"].forEach(status => {
       const option = document.createElement("option");
       option.value = status;
       option.textContent = status;
-      if ((order.status || "Pending") === status) option.selected = true;
+      if ((order.status || "অপেক্ষমাণ") === status) option.selected = true;
       select.appendChild(option);
     });
 
     const save = document.createElement("button");
     save.textContent = "Save";
-    save.onclick = () => updateStatus(order.id, select.value);
+    save.onclick = () => updateস্ট্যাটাস(order.id, select.value);
     action.append(select, save);
     tr.appendChild(action);
     body.appendChild(tr);
   });
 }
 
-async function updateStatus(orderId,status) {
+async function updateস্ট্যাটাস(orderId,status) {
   if (!currentUser || currentUser.email.toLowerCase() !== ADMIN_EMAIL) {
     showError("Admin permission required.");
     return;
@@ -521,17 +521,17 @@ async function updateStatus(orderId,status) {
       updatedAt:firebase.firestore.FieldValue.serverTimestamp()
     });
   } catch (error) {
-    showError("Status update failed: " + error.message);
+    showError("স্ট্যাটাস update failed: " + error.message);
   }
 }
 
-function renderCustomers(orders) {
+function renderকাস্টমারs(orders) {
   const map = new Map();
 
   orders.forEach(order => {
-    const email = order.customerEmail || "Unknown";
+    const email = order.customerইমেইল || "Unknown";
     const item = map.get(email) || {
-      name:order.customerName || "Customer",
+      name:order.customerনাম || "কাস্টমার",
       count:0
     };
     item.count++;
@@ -558,27 +558,27 @@ function renderCustomers(orders) {
 }
 
 /* CUSTOMER */
-function showCustomer(user) {
+function showকাস্টমার(user) {
   hidePanels();
   $("customerPanel").classList.remove("hidden");
   $("customerGreeting").textContent = "Signed in as " + user.email;
-  renderProducts();
+  renderপণ্যs();
 
-  unsubscribeOrders = db.collection("orders")
+  unsubscribeঅর্ডার = db.collection("orders")
     .where("uid","==",user.uid)
     .onSnapshot(snapshot => {
       const orders = snapshot.docs.map(doc => ({id:doc.id,...doc.data()}));
-      renderMyOrders(orders);
+      renderMyঅর্ডার(orders);
     }, error => showError("Cannot load your orders: " + error.message));
 }
 
-function renderProducts() {
+function renderপণ্যs() {
   const box = $("products");
   box.replaceChildren();
 
   PRODUCTS.forEach(product => {
     const card = document.createElement("article");
-    card.className = "product";
+    card.classনাম = "product";
     card.innerHTML = `
       <div class="product-icon">${product.icon}</div>
       <h3>${escapeHTML(product.name)}</h3>
@@ -592,8 +592,8 @@ function renderProducts() {
 }
 
 function openCheckout(product) {
-  selectedProduct = product;
-  $("selectedProduct").textContent =
+  selectedপণ্য = product;
+  $("selectedপণ্য").textContent =
     product.name + " — " + money(product.price) +
     " • Required: " + product.label;
   $("accountId").placeholder = "Enter " + product.label;
@@ -608,7 +608,7 @@ function openCheckout(product) {
 }
 
 function cancelCheckout() {
-  selectedProduct = null;
+  selectedপণ্য = null;
   $("checkoutPanel").classList.add("hidden");
 }
 
@@ -632,7 +632,7 @@ async function copyPaymentNumber() {
 }
 
 async function placeOrder() {
-  if (!currentUser || !selectedProduct) {
+  if (!currentUser || !selectedপণ্য) {
     showError("Sign in and select a product first.");
     return;
   }
@@ -647,7 +647,7 @@ async function placeOrder() {
     return;
   }
   if ((paymentMethod === "bKash" || paymentMethod === "Nagad") && !transactionId) {
-    showError("Please send payment and enter your Transaction ID (TrxID).");
+    showError("Please send payment and enter your Transaction ID (ট্রানজ্যাকশন আইডি).");
     $("transactionId").focus();
     return;
   }
@@ -658,25 +658,25 @@ async function placeOrder() {
   try {
     const order = {
       uid:currentUser.uid,
-      customerEmail:currentUser.email,
-      customerName:currentUser.displayName || "",
-      product:selectedProduct.name,
-      productId:selectedProduct.id,
+      customerইমেইল:currentUser.email,
+      customerনাম:currentUser.displayনাম || "",
+      product:selectedপণ্য.name,
+      productId:selectedপণ্য.id,
       accountId:accountId,
       phone:phone,
       payment:paymentMethod,
       transactionId:paymentMethod === "Card" ? "" : transactionId,
-      total:selectedProduct.price,
-      status:"Pending",
+      total:selectedপণ্য.price,
+      status:"অপেক্ষমাণ",
       createdAt:firebase.firestore.FieldValue.serverTimestamp()
     };
 
     const doc = await db.collection("orders").add(order);
     $("orderMessage").textContent =
-      "Order submitted successfully. Order ID: " + doc.id +
-      ". Current status: Pending.";
+      "Order submitted successfully. অর্ডার আইডি: " + doc.id +
+      ". Current status: অপেক্ষমাণ.";
     $("orderMessage").classList.remove("hidden");
-    selectedProduct = null;
+    selectedপণ্য = null;
     $("accountId").value = "";
     $("phone").value = "";
   } catch (error) {
@@ -686,8 +686,8 @@ async function placeOrder() {
   }
 }
 
-function renderMyOrders(orders) {
-  const body = $("myOrders");
+function renderMyঅর্ডার(orders) {
+  const body = $("myঅর্ডার");
   body.replaceChildren();
 
   if (!orders.length) {
@@ -702,8 +702,8 @@ function renderMyOrders(orders) {
   });
 
   orders.forEach(order => {
-    const date = order.createdAt?.toDate
-      ? order.createdAt.toDate().toLocaleString()
+    const date = order.createdAt?.toতারিখ
+      ? order.createdAt.toতারিখ().toLocaleString()
       : "Just submitted";
 
     const tr = document.createElement("tr");
@@ -711,7 +711,7 @@ function renderMyOrders(orders) {
       order.id,
       order.product || "—",
       money(order.total),
-      order.status || "Pending",
+      order.status || "অপেক্ষমাণ",
       date
     ].forEach(value => {
       const td = document.createElement("td");
