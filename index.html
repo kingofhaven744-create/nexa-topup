@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#080d19">
+<meta name="theme-color" content="#020817">
 <title>NEXA TOPUP — Premium Store</title>
 
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -13,80 +13,101 @@
 
 <style>
 :root {
-  --bg:#080d19; --panel:#111c30; --line:#293750;
-  --text:#f8fafc; --muted:#9aabc3; --purple:#7c3aed;
-  --blue:#2563eb; --green:#22c55e; --red:#ef4444;
+  --bg:#020817; --panel:#06142b; --line:#123e70;
+  --text:#eaf7ff; --muted:#9bc5e8; --purple:#8b2cff;
+  --blue:#007bff; --cyan:#00d5ff; --green:#22e6a8; --red:#ff456b;
 }
 * { box-sizing:border-box; }
+html { min-height:100%; scroll-behavior:smooth; }
 body {
-  margin:0; color:var(--text); background:
-  radial-gradient(circle at 10% 0%,#24164c 0,transparent 30%),
-  radial-gradient(circle at 100% 40%,#092d40 0,transparent 25%),
-  var(--bg); font-family:Arial,Helvetica,sans-serif;
+  margin:0; color:var(--text);
+  background:
+    radial-gradient(ellipse at 15% 8%,rgba(117,32,255,.24),transparent 34%),
+    radial-gradient(ellipse at 95% 30%,rgba(0,161,255,.20),transparent 33%),
+    radial-gradient(ellipse at 45% 100%,rgba(36,27,140,.20),transparent 40%),
+    repeating-linear-gradient(135deg,rgba(0,153,255,.025) 0 1px,transparent 1px 34px),
+    var(--bg);
+  font-family:Inter,system-ui,-apple-system,Arial,Helvetica,sans-serif;
 }
 button,input,select { font:inherit; }
-button { cursor:pointer; }
+button { cursor:pointer; transition:transform .18s ease,filter .18s ease,box-shadow .18s ease; }
+button:hover { filter:brightness(1.12); box-shadow:0 0 20px rgba(0,153,255,.22); }
+button:active { transform:scale(.985); }
 header {
   position:sticky; top:0; z-index:10; padding:15px 5%;
-  background:#080d19ed; backdrop-filter:blur(16px);
-  border-bottom:1px solid var(--line);
+  background:rgba(2,8,23,.92); backdrop-filter:blur(18px);
+  border-bottom:1px solid rgba(0,191,255,.24);
+  box-shadow:0 8px 30px rgba(0,0,0,.2);
   display:flex; align-items:center; justify-content:space-between;
   flex-wrap:wrap; gap:12px;
 }
-.brand { font-size:22px; font-weight:900; color:#c4b5fd; }
+.brand { font-size:clamp(19px,3vw,25px); font-weight:950; letter-spacing:.4px; color:#f1f8ff; text-shadow:0 0 18px rgba(0,195,255,.2); }
+.brand::first-letter { color:#9b4dff; }
 .header-actions { display:flex; align-items:center; gap:9px; flex-wrap:wrap; }
-#userEmail { font-size:12px; color:var(--muted); }
+#userEmail { font-size:12px; color:var(--muted); overflow-wrap:anywhere; }
 main { max-width:1150px; margin:28px auto; padding:0 16px 60px; }
 .panel {
-  padding:22px; margin-bottom:18px; border:1px solid var(--line);
-  border-radius:18px; background:linear-gradient(145deg,#131f35,#0d1525);
+  position:relative; padding:22px; margin-bottom:18px;
+  border:1px solid rgba(0,174,255,.38); border-radius:20px;
+  background:linear-gradient(145deg,rgba(5,24,54,.96),rgba(3,12,31,.98));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 12px 35px rgba(0,0,0,.16);
+  overflow:hidden;
 }
-h1 { font-size:clamp(25px,4vw,38px); margin:0 0 10px; }
-h2 { font-size:21px; margin:0 0 14px; }
-p { color:var(--muted); line-height:1.6; }
+.panel::before { content:""; position:absolute; inset:0 auto auto 0; width:100%; height:2px; background:linear-gradient(90deg,transparent,#8b2cff,#00d5ff,transparent); opacity:.85; pointer-events:none; }
+h1 { font-size:clamp(25px,4vw,38px); margin:0 0 10px; line-height:1.18; letter-spacing:-.5px; }
+h2 { font-size:21px; margin:0 0 14px; color:#d7efff; }
+p { color:var(--muted); line-height:1.65; }
 button,.button {
-  padding:12px 16px; border:0; border-radius:10px;
-  background:linear-gradient(135deg,var(--purple),var(--blue));
-  color:white; font-weight:800;
+  padding:12px 16px; border:1px solid rgba(255,255,255,.08); border-radius:12px;
+  background:linear-gradient(110deg,#812cff 0%,#394dff 50%,#008dff 100%);
+  color:white; font-weight:800; box-shadow:0 5px 18px rgba(77,55,255,.19);
 }
 button:disabled { opacity:.55; cursor:not-allowed; }
-.secondary { background:#263650; }
-.danger { background:#a82738; }
+.secondary { background:linear-gradient(120deg,#102d55,#0b4267); border-color:#1b5b87; }
+.danger { background:linear-gradient(120deg,#a91e4c,#ef345a); }
 input,select {
   width:100%; padding:13px; margin:7px 0 15px;
-  border:1px solid #35445d; border-radius:9px;
-  color:white; background:#080f1d; outline:none;
+  border:1px solid #164878; border-radius:11px; color:white;
+  background:rgba(1,9,25,.9); outline:none; box-shadow:inset 0 1px 4px rgba(0,0,0,.25);
 }
-input:focus,select:focus { border-color:#8b5cf6; }
-label { font-size:12px; color:#cbd5e1; font-weight:700; }
+input::placeholder { color:#6e94b8; }
+input:focus,select:focus { border-color:#9a4cff; box-shadow:0 0 0 3px rgba(139,44,255,.15),0 0 18px rgba(0,174,255,.1); }
+select option { background:#06142b; color:white; }
+label { font-size:12px; color:#bfe7ff; font-weight:750; }
 .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; }
-.stat { padding:18px; border-radius:13px; background:#192740; border:1px solid var(--line); }
+.stat { padding:18px; border-radius:15px; background:linear-gradient(145deg,#0b2345,#07162e); border:1px solid #174674; }
 .stat span { color:var(--muted); font-size:12px; }
-.stat strong { display:block; font-size:29px; margin-top:9px; color:#c4b5fd; }
+.stat strong { display:block; font-size:29px; margin-top:9px; color:#71dcff; text-shadow:0 0 15px rgba(0,190,255,.15); }
 .products { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:13px; }
-.product { border:1px solid var(--line); border-radius:15px; padding:17px; background:#101a2c; }
-.product-icon { font-size:29px; margin-bottom:12px; }
-.product h3 { font-size:15px; }
-.price { font-size:22px; font-weight:900; margin:12px 0; }
+.product { border:1px solid #174878; border-radius:16px; padding:17px; background:linear-gradient(145deg,#071b39,#040f25); transition:transform .2s,border-color .2s,box-shadow .2s; }
+.product:hover { transform:translateY(-2px); border-color:#8b2cff; box-shadow:0 0 22px rgba(82,49,255,.15); }
+.product-icon { font-size:29px; margin-bottom:12px; filter:drop-shadow(0 0 8px rgba(0,190,255,.3)); }
+.product h3 { font-size:15px; color:#dff6ff; }
+.price { font-size:22px; font-weight:900; margin:12px 0; color:#27d9ff; }
 .product button { width:100%; }
-.table-wrap { width:100%; overflow-x:auto; }
+.table-wrap { width:100%; overflow-x:auto; border-radius:10px; }
 table { width:100%; min-width:650px; border-collapse:collapse; }
-th,td { padding:12px 10px; border-bottom:1px solid var(--line); text-align:left; font-size:12px; }
-th { color:#c4b5fd; }
+th,td { padding:12px 10px; border-bottom:1px solid rgba(30,94,143,.45); text-align:left; font-size:12px; }
+th { color:#80ddff; background:rgba(0,113,190,.08); }
 td select { min-width:115px; margin:0 0 5px; padding:8px; }
 .small { font-size:11px; color:var(--muted); }
-.notice { padding:12px; border-radius:10px; background:#17243a; color:#cbd5e1; font-size:12px; line-height:1.6; }
+.notice { padding:14px; border:1px solid rgba(0,170,255,.17); border-radius:12px; background:linear-gradient(120deg,rgba(12,37,73,.95),rgba(5,23,48,.95)); color:#cbeaff; font-size:12px; line-height:1.65; }
 .hidden { display:none !important; }
-.message { padding:13px; margin-top:12px; border-radius:10px; background:#152d29; color:#a7f3d0; overflow-wrap:anywhere; }
-.error { background:#351b28; color:#fecaca; }
-.badge { display:inline-block; padding:5px 8px; border-radius:20px; background:#273651; font-size:10px; }
-footer { text-align:center; padding:30px 15px; border-top:1px solid var(--line); color:#7e8ba1; font-size:12px; }
+.message { padding:13px; margin-top:12px; border-radius:12px; background:#07382f; border:1px solid #08785f; color:#a7ffe3; overflow-wrap:anywhere; }
+.error { background:#3a1027; border-color:#a92a56; color:#ffd1df; }
+.badge { display:inline-block; padding:5px 8px; border-radius:20px; background:#102d55; border:1px solid #1b5983; font-size:10px; }
+footer { text-align:center; padding:30px 15px; border-top:1px solid rgba(0,174,255,.25); color:#7198bd; font-size:12px; background:rgba(2,8,23,.55); }
 @media(max-width:520px) {
   header { padding:13px; }
   .brand { font-size:18px; }
-  .panel { padding:16px; }
-  main { padding-left:12px; padding-right:12px; }
+  .panel { padding:16px; border-radius:16px; }
+  main { padding-left:12px; padding-right:12px; margin-top:18px; }
+  .products { grid-template-columns:repeat(auto-fit,minmax(145px,1fr)); gap:10px; }
+  .product { padding:13px; }
+  .price { font-size:19px; }
+  #userEmail { max-width:100%; }
 }
+@media(prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto!important; transition:none!important; } }
 </style>
 </head>
 
@@ -131,9 +152,9 @@ footer { text-align:center; padding:30px 15px; border-top:1px solid var(--line);
         <table>
           <thead><tr>
             <th>Order ID</th><th>Customer</th><th>Product</th>
-            <th>Account ID</th><th>Total</th><th>Status</th><th>Action</th>
+            <th>Account ID</th><th>Total</th><th>TrxID</th><th>Status</th><th>Action</th>
           </tr></thead>
-          <tbody id="adminOrders"><tr><td colspan="7">Waiting for login...</td></tr></tbody>
+          <tbody id="adminOrders"><tr><td colspan="8">Waiting for login...</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -179,7 +200,12 @@ footer { text-align:center; padding:30px 15px; border-top:1px solid var(--line);
         <strong id="paymentNumberTitle">bKash Payment Number</strong><br>
         <span id="paymentNumber">01789787273</span>
         <button type="button" class="secondary" onclick="copyPaymentNumber()">Copy Number</button>
-        <p style="margin-bottom:0">Please send payment to this number, then submit your order. Payment is not automatically verified.</p>
+        <p style="margin-bottom:0">Send Money to this number, then enter your Transaction ID below. Your payment will still need manual verification.</p>
+      </div>
+
+      <div id="transactionIdBox">
+        <label for="transactionId">bKash / Nagad Transaction ID (TrxID)</label>
+        <input id="transactionId" placeholder="Enter the TrxID after sending payment" autocomplete="off">
       </div>
 
       <div class="notice">
@@ -574,6 +600,8 @@ function openCheckout(product) {
   $("accountId").value = "";
   $("phone").value = "";
   $("payment").value = "bKash";
+  $("transactionId").value = "";
+  showPaymentNumber();
   $("orderMessage").classList.add("hidden");
   $("checkoutPanel").classList.remove("hidden");
   $("checkoutPanel").scrollIntoView({behavior:"smooth",block:"start"});
@@ -586,14 +614,12 @@ function cancelCheckout() {
 
 function showPaymentNumber() {
   const method = $("payment").value;
-  const box = $("paymentNumberBox");
-  if (method === "bKash" || method === "Nagad") {
-    $("paymentNumberTitle").textContent = method + " Payment Number";
-    $("paymentNumber").textContent = "01789787273";
-    box.classList.remove("hidden");
-  } else {
-    box.classList.add("hidden");
-  }
+  const isWallet = method === "bKash" || method === "Nagad";
+  $("paymentNumberTitle").textContent = method + " Payment Number";
+  $("paymentNumber").textContent = "01789787273";
+  $("paymentNumberBox").classList.toggle("hidden", !isWallet);
+  $("transactionIdBox").classList.toggle("hidden", !isWallet);
+  $("transactionId").required = isWallet;
 }
 
 async function copyPaymentNumber() {
@@ -613,9 +639,16 @@ async function placeOrder() {
 
   const accountId = $("accountId").value.trim();
   const phone = $("phone").value.trim();
+  const paymentMethod = $("payment").value;
+  const transactionId = $("transactionId").value.trim();
 
   if (!accountId || !phone) {
     showError("Please enter your account ID and phone number.");
+    return;
+  }
+  if ((paymentMethod === "bKash" || paymentMethod === "Nagad") && !transactionId) {
+    showError("Please send payment and enter your Transaction ID (TrxID).");
+    $("transactionId").focus();
     return;
   }
 
@@ -631,7 +664,8 @@ async function placeOrder() {
       productId:selectedProduct.id,
       accountId:accountId,
       phone:phone,
-      payment:$("payment").value,
+      payment:paymentMethod,
+      transactionId:paymentMethod === "Card" ? "" : transactionId,
       total:selectedProduct.price,
       status:"Pending",
       createdAt:firebase.firestore.FieldValue.serverTimestamp()
