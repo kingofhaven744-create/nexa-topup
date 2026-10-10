@@ -1,0 +1,664 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#080d19">
+<title>NEXA TOPUP — Premium Store</title>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+
+<style>
+:root {
+  --bg:#080d19; --panel:#111c30; --line:#293750;
+  --text:#f8fafc; --muted:#9aabc3; --purple:#7c3aed;
+  --blue:#2563eb; --green:#22c55e; --red:#ef4444;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0; color:var(--text); background:
+  radial-gradient(circle at 10% 0%,#24164c 0,transparent 30%),
+  radial-gradient(circle at 100% 40%,#092d40 0,transparent 25%),
+  var(--bg); font-family:Arial,Helvetica,sans-serif;
+}
+button,input,select { font:inherit; }
+button { cursor:pointer; }
+header {
+  position:sticky; top:0; z-index:10; padding:15px 5%;
+  background:#080d19ed; backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--line);
+  display:flex; align-items:center; justify-content:space-between;
+  flex-wrap:wrap; gap:12px;
+}
+.brand { font-size:22px; font-weight:900; color:#c4b5fd; }
+.header-actions { display:flex; align-items:center; gap:9px; flex-wrap:wrap; }
+#userEmail { font-size:12px; color:var(--muted); }
+main { max-width:1150px; margin:28px auto; padding:0 16px 60px; }
+.panel {
+  padding:22px; margin-bottom:18px; border:1px solid var(--line);
+  border-radius:18px; background:linear-gradient(145deg,#131f35,#0d1525);
+}
+h1 { font-size:clamp(25px,4vw,38px); margin:0 0 10px; }
+h2 { font-size:21px; margin:0 0 14px; }
+p { color:var(--muted); line-height:1.6; }
+button,.button {
+  padding:12px 16px; border:0; border-radius:10px;
+  background:linear-gradient(135deg,var(--purple),var(--blue));
+  color:white; font-weight:800;
+}
+button:disabled { opacity:.55; cursor:not-allowed; }
+.secondary { background:#263650; }
+.danger { background:#a82738; }
+input,select {
+  width:100%; padding:13px; margin:7px 0 15px;
+  border:1px solid #35445d; border-radius:9px;
+  color:white; background:#080f1d; outline:none;
+}
+input:focus,select:focus { border-color:#8b5cf6; }
+label { font-size:12px; color:#cbd5e1; font-weight:700; }
+.grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; }
+.stat { padding:18px; border-radius:13px; background:#192740; border:1px solid var(--line); }
+.stat span { color:var(--muted); font-size:12px; }
+.stat strong { display:block; font-size:29px; margin-top:9px; color:#c4b5fd; }
+.products { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:13px; }
+.product { border:1px solid var(--line); border-radius:15px; padding:17px; background:#101a2c; }
+.product-icon { font-size:29px; margin-bottom:12px; }
+.product h3 { font-size:15px; }
+.price { font-size:22px; font-weight:900; margin:12px 0; }
+.product button { width:100%; }
+.table-wrap { width:100%; overflow-x:auto; }
+table { width:100%; min-width:650px; border-collapse:collapse; }
+th,td { padding:12px 10px; border-bottom:1px solid var(--line); text-align:left; font-size:12px; }
+th { color:#c4b5fd; }
+td select { min-width:115px; margin:0 0 5px; padding:8px; }
+.small { font-size:11px; color:var(--muted); }
+.notice { padding:12px; border-radius:10px; background:#17243a; color:#cbd5e1; font-size:12px; line-height:1.6; }
+.hidden { display:none !important; }
+.message { padding:13px; margin-top:12px; border-radius:10px; background:#152d29; color:#a7f3d0; overflow-wrap:anywhere; }
+.error { background:#351b28; color:#fecaca; }
+.badge { display:inline-block; padding:5px 8px; border-radius:20px; background:#273651; font-size:10px; }
+footer { text-align:center; padding:30px 15px; border-top:1px solid var(--line); color:#7e8ba1; font-size:12px; }
+@media(max-width:520px) {
+  header { padding:13px; }
+  .brand { font-size:18px; }
+  .panel { padding:16px; }
+  main { padding-left:12px; padding-right:12px; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="brand">⚡ NEXA TOPUP</div>
+  <div class="header-actions">
+    <span id="userEmail">Not signed in</span>
+    <button id="loginBtn" type="button" onclick="login()">Google Login</button>
+    <button id="logoutBtn" class="secondary hidden" onclick="logout()">Logout</button>
+  </div>
+</header>
+
+<main>
+  <section id="welcome" class="panel">
+    <h1>Power Up Your Digital World.</h1>
+    <p>Premium gaming top-ups, mobile recharge and digital products.</p>
+    <div class="notice">
+      Sign in with Google to continue. Your account will be classified as Admin or Customer.
+    </div>
+    <br>
+    <button type="button" onclick="login()">Continue with Google →</button>
+  </section>
+
+  <!-- ADMIN PANEL -->
+  <section id="adminPanel" class="hidden">
+    <div class="panel">
+      <h1>🛡️ Admin Dashboard</h1>
+      <p>Administrator access • NEXA TOPUP</p>
+      <div class="grid">
+        <div class="stat"><span>Total Orders</span><strong id="totalOrders">0</strong></div>
+        <div class="stat"><span>Pending</span><strong id="pendingOrders">0</strong></div>
+        <div class="stat"><span>Processing</span><strong id="processingOrders">0</strong></div>
+        <div class="stat"><span>Completed</span><strong id="completedOrders">0</strong></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>📦 All Orders</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Order ID</th><th>Customer</th><th>Product</th>
+            <th>Account ID</th><th>Total</th><th>Status</th><th>Action</th>
+          </tr></thead>
+          <tbody id="adminOrders"><tr><td colspan="7">Waiting for login...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>👥 Customer List</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Name</th><th>Email</th><th>Orders</th></tr></thead>
+          <tbody id="customerList"><tr><td colspan="3">No customers loaded.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- CUSTOMER PANEL -->
+  <section id="customerPanel" class="hidden">
+    <div class="panel">
+      <h1>👤 Customer Panel</h1>
+      <p id="customerGreeting"></p>
+      <h2>Choose a Top Up</h2>
+      <div class="products" id="products"></div>
+    </div>
+
+    <div id="checkoutPanel" class="panel hidden">
+      <h2>Complete Your Order</h2>
+      <div id="selectedProduct" class="notice"></div>
+
+      <label for="accountId">Player ID / UID / Account</label>
+      <input id="accountId" placeholder="Enter the correct account ID">
+
+      <label for="phone">Contact Number</label>
+      <input id="phone" type="tel" placeholder="01XXXXXXXXX">
+
+      <label for="payment">Payment Method</label>
+      <select id="payment">
+        <option value="bKash">bKash</option>
+        <option value="Nagad">Nagad</option>
+        <option value="Card">Card</option>
+      </select>
+
+      <div class="notice">
+        Check your account ID carefully. This demo records an order but does not process payments or automatically deliver top-ups.
+      </div>
+      <br>
+      <button id="submitOrderBtn" onclick="placeOrder()">Submit Order</button>
+      <button class="secondary" onclick="cancelCheckout()">Cancel</button>
+      <div id="orderMessage" class="message hidden"></div>
+    </div>
+
+    <div class="panel">
+      <h2>🧾 My Orders</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Order ID</th><th>Product</th><th>Total</th><th>Status</th><th>Date</th></tr></thead>
+          <tbody id="myOrders"><tr><td colspan="5">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="setupInfo" class="panel hidden">
+    <h2>Setup Required</h2>
+    <p id="setupMessage"></p>
+  </section>
+
+  <section id="errorBox" class="panel error hidden" role="alert"></section>
+</main>
+
+<footer>© 2026 NEXA TOPUP • Premium Digital Store</footer>
+
+<script>
+"use strict";
+
+/*
+  FIREBASE SETUP:
+  This file uses the Firebase Web App config supplied by the owner.
+  Enable Google sign-in and create Firestore Database.
+*/
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCpqWELaO5-FMOsBrCGezT21zFXL0BEF4c",
+  authDomain: "topup-ef926.firebaseapp.com",
+  projectId: "topup-ef926",
+  storageBucket: "topup-ef926.firebasestorage.app",
+  messagingSenderId: "612774693543",
+  appId: "1:612774693543:web:604ddd5fc2eec28ebca982",
+  measurementId: "G-Y1R820ZNWG"
+};
+
+const ADMIN_EMAIL = "kingofhaven744@gmail.com";
+
+const PRODUCTS = [
+  {id:"ff-diamonds",name:"Free Fire Diamonds",description:"Free Fire diamond top-up",price:89,icon:"🔥",label:"PLAYER ID / UID"},
+  {id:"pubg-uc",name:"PUBG Mobile UC",description:"PUBG UC top-up",price:120,icon:"🎯",label:"PLAYER ID"},
+  {id:"mlbb-diamonds",name:"Mobile Legends",description:"MLBB diamond top-up",price:149,icon:"⚔️",label:"USER ID"},
+  {id:"robux",name:"Roblox Robux",description:"Robux digital product",price:399,icon:"🧱",label:"USERNAME"},
+  {id:"cod-cp",name:"COD Mobile CP",description:"Call of Duty Mobile",price:299,icon:"🎮",label:"PLAYER ID"},
+  {id:"mobile-recharge",name:"Mobile Recharge",description:"Mobile balance recharge",price:100,icon:"📱",label:"MOBILE NUMBER"},
+  {id:"google-play",name:"Google Play",description:"Digital gift balance",price:299,icon:"▶️",label:"EMAIL / ACCOUNT"},
+  {id:"steam-wallet",name:"Steam Wallet",description:"Steam digital wallet",price:599,icon:"🕹️",label:"STEAM ACCOUNT"}
+];
+
+let auth = null;
+let db = null;
+let currentUser = null;
+let selectedProduct = null;
+let unsubscribeOrders = null;
+let loginInProgress = false;
+
+const $ = id => document.getElementById(id);
+
+function showError(message) {
+  $("errorBox").textContent = message;
+  $("errorBox").classList.remove("hidden");
+}
+function clearError() {
+  $("errorBox").textContent = "";
+  $("errorBox").classList.add("hidden");
+}
+function showSetup(message) {
+  $("setupMessage").textContent = message;
+  $("setupInfo").classList.remove("hidden");
+}
+function hideSetup() {
+  $("setupInfo").classList.add("hidden");
+}
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  })[c]);
+}
+function money(value) {
+  return "৳" + Number(value || 0).toLocaleString("en-BD");
+}
+function cleanupListener() {
+  if (unsubscribeOrders) {
+    unsubscribeOrders();
+    unsubscribeOrders = null;
+  }
+}
+function hidePanels() {
+  ["welcome","adminPanel","customerPanel"].forEach(id =>
+    $(id).classList.add("hidden")
+  );
+}
+function isConfigured() {
+  const required = [
+    firebaseConfig.apiKey,
+    firebaseConfig.authDomain,
+    firebaseConfig.projectId,
+    firebaseConfig.appId
+  ];
+  return required.every(value =>
+    typeof value === "string" &&
+    value.trim() !== "" &&
+    !value.includes("PASTE_YOUR_") &&
+    !value.startsWith("YOUR_")
+  );
+}
+
+/* INITIALIZE */
+if (!isConfigured()) {
+  showSetup("Firebase config is missing. Replace the placeholder values in firebaseConfig, enable Google Authentication and create Firestore Database before using the login and order features.");
+} else {
+  try {
+    firebase.initializeApp(firebaseConfig);
+    auth = firebase.auth();
+    db = firebase.firestore();
+
+    auth.getRedirectResult().catch(error => {
+      showError("Google redirect login failed (" + (error.code || "unknown") + "): " + error.message);
+    });
+
+    auth.onAuthStateChanged(async user => {
+      cleanupListener();
+      clearError();
+      currentUser = user || null;
+
+      if (!user) {
+        showSignedOut();
+        return;
+      }
+
+      if (!user.email || !user.emailVerified) {
+        showError("A verified Google account email is required.");
+        await auth.signOut();
+        return;
+      }
+
+      showSignedIn(user);
+
+      if (user.email.toLowerCase() === ADMIN_EMAIL) {
+        showAdmin();
+      } else {
+        showCustomer(user);
+      }
+    });
+  } catch (error) {
+    showError("Firebase initialization failed: " + error.message);
+  }
+}
+
+/* AUTHENTICATION */
+async function login() {
+  if (!auth) {
+    showSetup(
+      "Google Login is not ready. Open Firebase Console > Project settings > Your apps, " +
+      "copy the real apiKey and appId into this file, enable Google in Authentication > Sign-in method, " +
+      "and add this website domain under Authentication > Settings > Authorized domains."
+    );
+    return;
+  }
+  if (loginInProgress) return;
+  loginInProgress = true;
+  clearError();
+  $("loginBtn").disabled = true;
+
+  try {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" });
+    await auth.signInWithPopup(provider);
+  } catch (error) {
+    // On some mobile browsers, popups are blocked. Use redirect as a fallback.
+    if (["auth/popup-blocked", "auth/popup-closed-by-user", "auth/cancelled-popup-request"].includes(error.code)) {
+      try {
+        await auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider());
+        return;
+      } catch (redirectError) {
+        showError("Google login failed (" + (redirectError.code || "unknown") + "): " + redirectError.message);
+      }
+    } else {
+      const help = {
+        "auth/unauthorized-domain": " This website domain is not in Firebase Authorized domains.",
+        "auth/operation-not-allowed": " Enable Google provider in Firebase Authentication > Sign-in method.",
+        "auth/invalid-api-key": " The Firebase apiKey is incorrect. Copy the real apiKey from Project settings.",
+        "auth/invalid-oauth-client-id": " Check the Google provider settings in Firebase Authentication."
+      };
+      showError("Google login failed (" + (error.code || "unknown") + "): " + error.message + (help[error.code] || ""));
+    }
+  } finally {
+    loginInProgress = false;
+    $("loginBtn").disabled = false;
+  }
+}
+
+async function logout() {
+  if (auth) {
+    try {
+      await auth.signOut();
+    } catch (error) {
+      showError("Logout failed: " + error.message);
+    }
+  }
+}
+
+function showSignedOut() {
+  hidePanels();
+  $("welcome").classList.remove("hidden");
+  $("userEmail").textContent = "Not signed in";
+  $("loginBtn").classList.remove("hidden");
+  $("logoutBtn").classList.add("hidden");
+}
+
+function showSignedIn(user) {
+  $("userEmail").textContent = user.email;
+  $("loginBtn").classList.add("hidden");
+  $("logoutBtn").classList.remove("hidden");
+  hideSetup();
+}
+
+/* ADMIN */
+function showAdmin() {
+  hidePanels();
+  $("adminPanel").classList.remove("hidden");
+
+  unsubscribeOrders = db.collection("orders")
+    .onSnapshot(snapshot => {
+      const orders = snapshot.docs.map(doc => ({id:doc.id,...doc.data()}));
+      renderAdminOrders(orders);
+      renderStats(orders);
+      renderCustomers(orders);
+    }, error => showError("Cannot load orders: " + error.message));
+}
+
+function renderStats(orders) {
+  $("totalOrders").textContent = orders.length;
+  $("pendingOrders").textContent = orders.filter(o => (o.status || "Pending") === "Pending").length;
+  $("processingOrders").textContent = orders.filter(o => o.status === "Processing").length;
+  $("completedOrders").textContent = orders.filter(o => o.status === "Completed").length;
+}
+
+function renderAdminOrders(orders) {
+  const body = $("adminOrders");
+  body.replaceChildren();
+
+  if (!orders.length) {
+    body.innerHTML = '<tr><td colspan="7">No orders yet.</td></tr>';
+    return;
+  }
+
+  orders.sort((a,b) => {
+    const at = a.createdAt?.toMillis?.() || 0;
+    const bt = b.createdAt?.toMillis?.() || 0;
+    return bt-at;
+  });
+
+  orders.forEach(order => {
+    const tr = document.createElement("tr");
+    [
+      order.id,
+      order.customerEmail || "—",
+      order.product || "—",
+      order.accountId || "—",
+      money(order.total),
+      order.status || "Pending"
+    ].forEach(value => {
+      const td = document.createElement("td");
+      td.textContent = value;
+      tr.appendChild(td);
+    });
+
+    const action = document.createElement("td");
+    const select = document.createElement("select");
+
+    ["Pending","Processing","Completed","Cancelled"].forEach(status => {
+      const option = document.createElement("option");
+      option.value = status;
+      option.textContent = status;
+      if ((order.status || "Pending") === status) option.selected = true;
+      select.appendChild(option);
+    });
+
+    const save = document.createElement("button");
+    save.textContent = "Save";
+    save.onclick = () => updateStatus(order.id, select.value);
+    action.append(select, save);
+    tr.appendChild(action);
+    body.appendChild(tr);
+  });
+}
+
+async function updateStatus(orderId,status) {
+  if (!currentUser || currentUser.email.toLowerCase() !== ADMIN_EMAIL) {
+    showError("Admin permission required.");
+    return;
+  }
+
+  try {
+    await db.collection("orders").doc(orderId).update({
+      status:status,
+      updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } catch (error) {
+    showError("Status update failed: " + error.message);
+  }
+}
+
+function renderCustomers(orders) {
+  const map = new Map();
+
+  orders.forEach(order => {
+    const email = order.customerEmail || "Unknown";
+    const item = map.get(email) || {
+      name:order.customerName || "Customer",
+      count:0
+    };
+    item.count++;
+    map.set(email,item);
+  });
+
+  const body = $("customerList");
+  body.replaceChildren();
+
+  if (!map.size) {
+    body.innerHTML = '<tr><td colspan="3">No customers yet.</td></tr>';
+    return;
+  }
+
+  map.forEach((customer,email) => {
+    const tr = document.createElement("tr");
+    [customer.name,email,String(customer.count)].forEach(value => {
+      const td = document.createElement("td");
+      td.textContent = value;
+      tr.appendChild(td);
+    });
+    body.appendChild(tr);
+  });
+}
+
+/* CUSTOMER */
+function showCustomer(user) {
+  hidePanels();
+  $("customerPanel").classList.remove("hidden");
+  $("customerGreeting").textContent = "Signed in as " + user.email;
+  renderProducts();
+
+  unsubscribeOrders = db.collection("orders")
+    .where("uid","==",user.uid)
+    .onSnapshot(snapshot => {
+      const orders = snapshot.docs.map(doc => ({id:doc.id,...doc.data()}));
+      renderMyOrders(orders);
+    }, error => showError("Cannot load your orders: " + error.message));
+}
+
+function renderProducts() {
+  const box = $("products");
+  box.replaceChildren();
+
+  PRODUCTS.forEach(product => {
+    const card = document.createElement("article");
+    card.className = "product";
+    card.innerHTML = `
+      <div class="product-icon">${product.icon}</div>
+      <h3>${escapeHTML(product.name)}</h3>
+      <p>${escapeHTML(product.description)}</p>
+      <div class="price">${money(product.price)}</div>
+      <button type="button">Buy Now →</button>
+    `;
+    card.querySelector("button").onclick = () => openCheckout(product);
+    box.appendChild(card);
+  });
+}
+
+function openCheckout(product) {
+  selectedProduct = product;
+  $("selectedProduct").textContent =
+    product.name + " — " + money(product.price) +
+    " • Required: " + product.label;
+  $("accountId").placeholder = "Enter " + product.label;
+  $("accountId").value = "";
+  $("phone").value = "";
+  $("payment").value = "bKash";
+  $("orderMessage").classList.add("hidden");
+  $("checkoutPanel").classList.remove("hidden");
+  $("checkoutPanel").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+function cancelCheckout() {
+  selectedProduct = null;
+  $("checkoutPanel").classList.add("hidden");
+}
+
+async function placeOrder() {
+  if (!currentUser || !selectedProduct) {
+    showError("Sign in and select a product first.");
+    return;
+  }
+
+  const accountId = $("accountId").value.trim();
+  const phone = $("phone").value.trim();
+
+  if (!accountId || !phone) {
+    showError("Please enter your account ID and phone number.");
+    return;
+  }
+
+  clearError();
+  $("submitOrderBtn").disabled = true;
+
+  try {
+    const order = {
+      uid:currentUser.uid,
+      customerEmail:currentUser.email,
+      customerName:currentUser.displayName || "",
+      product:selectedProduct.name,
+      productId:selectedProduct.id,
+      accountId:accountId,
+      phone:phone,
+      payment:$("payment").value,
+      total:selectedProduct.price,
+      status:"Pending",
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    const doc = await db.collection("orders").add(order);
+    $("orderMessage").textContent =
+      "Order submitted successfully. Order ID: " + doc.id +
+      ". Current status: Pending.";
+    $("orderMessage").classList.remove("hidden");
+    selectedProduct = null;
+    $("accountId").value = "";
+    $("phone").value = "";
+  } catch (error) {
+    showError("Order submission failed: " + error.message);
+  } finally {
+    $("submitOrderBtn").disabled = false;
+  }
+}
+
+function renderMyOrders(orders) {
+  const body = $("myOrders");
+  body.replaceChildren();
+
+  if (!orders.length) {
+    body.innerHTML = '<tr><td colspan="5">You have no orders yet.</td></tr>';
+    return;
+  }
+
+  orders.sort((a,b) => {
+    const at = a.createdAt?.toMillis?.() || 0;
+    const bt = b.createdAt?.toMillis?.() || 0;
+    return bt-at;
+  });
+
+  orders.forEach(order => {
+    const date = order.createdAt?.toDate
+      ? order.createdAt.toDate().toLocaleString()
+      : "Just submitted";
+
+    const tr = document.createElement("tr");
+    [
+      order.id,
+      order.product || "—",
+      money(order.total),
+      order.status || "Pending",
+      date
+    ].forEach(value => {
+      const td = document.createElement("td");
+      td.textContent = value;
+      tr.appendChild(td);
+    });
+    body.appendChild(tr);
+  });
+}
+</script>
+</body>
+</html>
