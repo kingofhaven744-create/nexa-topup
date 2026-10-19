@@ -54,6 +54,14 @@ td button{padding:8px 12px}
 .message{padding:13px;margin-top:12px;border-radius:10px;background:#152d29;color:#a7f3d0;overflow-wrap:anywhere}
 .error{background:#351b28;color:#fecaca}
 .paybox{padding:16px;margin:0 0 15px;border:1px dashed #8b5cf6;border-radius:12px;background:#17143a;line-height:1.7;font-size:13px;color:#e2e8f0}.paynum{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:8px 0}.paynum strong{font-size:26px;letter-spacing:1px;color:#c4b5fd}.paynum button{padding:8px 12px}.paybox ol{margin:8px 0 0;padding-left:20px}
+.shell{display:flex;gap:18px;align-items:flex-start}.content{flex:1;min-width:0}
+#sidebar{position:sticky;top:84px;width:210px;flex:none;padding:12px;border:1px solid var(--line);border-radius:16px;background:#0d1525;display:flex;flex-direction:column;gap:6px}
+#sidebar button{background:transparent;text-align:left;color:#cbd5e1}#sidebar button.active{background:linear-gradient(135deg,var(--purple),var(--blue));color:#fff}
+input[type=checkbox]{width:auto;margin:0 8px 0 0}.check{display:flex;align-items:center;margin:6px 0;font-size:13px}
+.badge{display:inline-block;padding:3px 9px;margin-bottom:8px;border-radius:99px;background:#7f1d1d;color:#fecaca;font-size:11px;font-weight:800;align-self:flex-start}
+.old{text-decoration:line-through;color:var(--muted);font-size:14px;font-weight:400;margin-right:7px}
+td button{margin:0 4px 4px 0}
+@media(max-width:800px){.shell{flex-direction:column}#sidebar{position:static;width:100%;flex-direction:row;overflow-x:auto}#sidebar button{white-space:nowrap}}
 .actions{display:flex;gap:10px;flex-wrap:wrap}
 footer{text-align:center;padding:30px 15px;border-top:1px solid var(--line);color:#7e8ba1;font-size:12px}
 @media(max-width:520px){header{padding:13px}.brand{font-size:18px}.panel{padding:16px}main{padding-left:12px;padding-right:12px}}
@@ -63,7 +71,7 @@ footer{text-align:center;padding:30px 15px;border-top:1px solid var(--line);colo
 <body>
 
 <header>
-  <div class="brand">⚡ HBD-Topup</div>
+  <div class="brand" id="brandName">⚡ HBD-Topup</div>
   <div class="header-actions">
     <span id="userEmail">Checking session…</span>
     <button id="loginBtn" type="button" class="hidden">Google Login</button>
@@ -81,17 +89,33 @@ footer{text-align:center;padding:30px 15px;border-top:1px solid var(--line);colo
     <button id="welcomeLoginBtn" type="button">Continue with Google</button>
   </section>
 
-  <section id="adminPanel" class="hidden">
+  <div class="shell">
+  <aside id="sidebar" class="hidden" aria-label="Admin menu">
+    <button type="button" data-view="orders">📦 Orders</button>
+    <button type="button" data-view="products">🛍️ Products &amp; Offers</button>
+    <button type="button" data-view="customers">👥 Customers</button>
+    <button type="button" data-view="settings">⚙️ Settings</button>
+    <button type="button" data-view="store">🛒 Customer Panel</button>
+  </aside>
+  <div class="content">
+
+  <div id="v-orders" class="view hidden">
     <div class="panel">
       <h1>🛡️ Admin Dashboard</h1>
-      <p>Administrator access • HBD-Topup</p>
+      <p>Full administrator access • edit or delete any order</p>
       <div class="grid">
         <div class="stat"><span>Total Orders</span><strong id="totalOrders">0</strong></div>
         <div class="stat"><span>Pending</span><strong id="pendingOrders">0</strong></div>
         <div class="stat"><span>Processing</span><strong id="processingOrders">0</strong></div>
         <div class="stat"><span>Completed</span><strong id="completedOrders">0</strong></div>
         <div class="stat"><span>Cancelled</span><strong id="cancelledOrders">0</strong></div>
+        <div class="stat"><span>Revenue (Completed)</span><strong id="revenue">৳0</strong></div>
       </div>
+    </div>
+    <div id="orderEditor" class="panel hidden">
+      <h2>✏️ Edit Order <small id="editOrderId"></small></h2>
+      <div class="grid" id="orderEditFields"></div>
+      <div class="actions"><button id="saveOrderBtn" type="button">Save changes</button><button id="closeEditorBtn" type="button" class="secondary">Close</button></div>
     </div>
     <div class="panel">
       <h2>📦 All Orders</h2>
@@ -102,21 +126,61 @@ footer{text-align:center;padding:30px 15px;border-top:1px solid var(--line);colo
         </table>
       </div>
     </div>
+  </div>
+
+  <div id="v-products" class="view hidden">
+    <div class="panel">
+      <h2 id="productFormTitle">➕ Add Product / Offer</h2>
+      <div class="grid">
+        <div><label for="pName">Name</label><input id="pName" maxlength="60"></div>
+        <div><label for="pIcon">Icon (emoji)</label><input id="pIcon" maxlength="4" placeholder="🎁"></div>
+        <div><label for="pPrice">Selling price (৳)</label><input id="pPrice" type="number" min="1" step="any"></div>
+        <div><label for="pOldPrice">Old price (৳, optional – shows as offer)</label><input id="pOldPrice" type="number" min="0" step="any"></div>
+        <div><label for="pOffer">Offer badge (e.g. 20% OFF)</label><input id="pOffer" maxlength="30"></div>
+        <div><label for="pLabel">What customer must enter</label><input id="pLabel" maxlength="40" placeholder="Player ID"></div>
+        <div><label for="pDesc">Description</label><input id="pDesc" maxlength="120"></div>
+        <div><label for="pSort">Position (small = first)</label><input id="pSort" type="number" step="1" value="0"></div>
+      </div>
+      <label class="check"><input type="checkbox" id="pActive" checked> Active (visible to customers)</label>
+      <label class="check"><input type="checkbox" id="pPhone"> Account field is a mobile number</label>
+      <div class="actions"><button id="saveProductBtn" type="button">Save product</button><button id="clearProductBtn" type="button" class="secondary">Clear form</button></div>
+    </div>
+    <div class="panel">
+      <h2>🛍️ Products</h2>
+      <button id="seedBtn" type="button" class="secondary hidden" style="margin-bottom:12px">Load default products</button>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Product</th><th>Price</th><th>Offer</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody id="productAdmin"><tr><td colspan="5">Loading…</td></tr></tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <div id="v-customers" class="view hidden">
     <div class="panel">
       <h2>👥 Customer List</h2>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Name</th><th>Email</th><th>Orders</th></tr></thead>
-          <tbody id="customerList"><tr><td colspan="3">No customers loaded.</td></tr></tbody>
-        </table>
-      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Name</th><th>Email</th><th>Orders</th></tr></thead>
+        <tbody id="customerList"><tr><td colspan="3">No customers loaded.</td></tr></tbody>
+      </table></div>
     </div>
-  </section>
+  </div>
 
-  <section id="customerPanel" class="hidden">
+  <div id="v-settings" class="view hidden">
+    <div class="panel">
+      <h2>⚙️ Store Settings</h2>
+      <label for="sName">Store name</label><input id="sName" maxlength="40" placeholder="HBD-Topup">
+      <label for="sPay">Payment number (bKash / Nagad)</label><input id="sPay" type="tel" maxlength="25" placeholder="01XXXXXXXXX">
+      <label for="sAnnounce">Announcement / offer banner (leave empty to hide)</label><input id="sAnnounce" maxlength="200">
+      <button id="saveSettingsBtn" type="button">Save settings</button>
+      <div id="settingsMsg" class="message hidden" role="status"></div>
+    </div>
+  </div>
+
+  <section id="customerPanel" class="view hidden">
     <div class="panel">
       <h1>👤 Customer Panel</h1>
       <p id="customerGreeting"></p>
+      <div id="announcement" class="notice hidden"></div>
       <h2>Choose a Top Up</h2>
       <div class="products" id="products"></div>
     </div>
@@ -172,6 +236,8 @@ footer{text-align:center;padding:30px 15px;border-top:1px solid var(--line);colo
     </div>
   </section>
 
+  </div></div>
+
   <section id="setupInfo" class="panel hidden"><h2>Setup Required</h2><p id="setupMessage"></p></section>
   <section id="errorBox" class="panel error hidden" role="alert"></section>
 </main>
@@ -195,10 +261,11 @@ const ADMIN_EMAIL = "kingofhaven744@gmail.com";
 const STATUSES = ["Pending", "Processing", "Completed", "Cancelled"];
 const PAYMENTS = ["bKash", "Nagad"];
 const PAY_NUMBER = "01789787273";
+const payNumber = () => settings.payNumber || PAY_NUMBER;
 const TRX_RE = /^[A-Z0-9]{6,20}$/;
 const BD_PHONE = /^(?:\+?88)?01[3-9]\d{8}$/;
 
-const PRODUCTS = [
+const DEFAULT_PRODUCTS = [
   {id:"ff-diamonds",name:"Free Fire Diamonds",description:"Free Fire diamond top-up",price:89,icon:"🔥",label:"Player ID / UID"},
   {id:"pubg-uc",name:"PUBG Mobile UC",description:"PUBG UC top-up",price:120,icon:"🎯",label:"Player ID"},
   {id:"mlbb-diamonds",name:"Mobile Legends",description:"MLBB diamond top-up",price:149,icon:"⚔️",label:"User ID"},
@@ -210,7 +277,8 @@ const PRODUCTS = [
 ];
 
 let auth = null, db = null, currentUser = null, selectedProduct = null;
-let unsubscribeOrders = null, loginInProgress = false, authRun = 0, keepError = false;
+let unsubs = [], products = [], settings = {}, editingProductId = null, editingOrderId = null;
+let loginInProgress = false, authRun = 0, keepError = false;
 
 const $ = id => document.getElementById(id);
 const isAdmin = u => !!(u && u.email && u.emailVerified && u.email.toLowerCase() === ADMIN_EMAIL.toLowerCase());
@@ -222,8 +290,20 @@ function showError(msg) { $("errorBox").textContent = msg; $("errorBox").classLi
 function clearError() { $("errorBox").textContent = ""; $("errorBox").classList.add("hidden"); }
 function showSetup(msg) { $("setupMessage").textContent = msg; $("setupInfo").classList.remove("hidden"); }
 function hideSetup() { $("setupInfo").classList.add("hidden"); }
-function hidePanels() { ["loading","welcome","adminPanel","customerPanel"].forEach(id => $(id).classList.add("hidden")); }
-function cleanupListener() { if (unsubscribeOrders) { unsubscribeOrders(); unsubscribeOrders = null; } }
+function hidePanels() {
+  ["loading", "welcome"].forEach(id => $(id).classList.add("hidden"));
+  document.querySelectorAll(".view").forEach(v => v.classList.add("hidden"));
+}
+function setView(name) {
+  document.querySelectorAll(".view").forEach(v => v.classList.add("hidden"));
+  $(name === "store" ? "customerPanel" : "v-" + name).classList.remove("hidden");
+  document.querySelectorAll("#sidebar button").forEach(b => b.classList.toggle("active", b.dataset.view === name));
+}
+function mkBtn(text, fn, cls) {
+  const b = document.createElement("button");
+  b.type = "button"; b.textContent = text; if (cls) b.className = cls; b.onclick = fn; return b;
+}
+function cleanupListener() { unsubs.forEach(u => u()); unsubs = []; products = []; settings = {}; }
 
 function cell(text) { const td = document.createElement("td"); td.textContent = text; return td; }
 function row(values) { const tr = document.createElement("tr"); values.forEach(v => tr.appendChild(cell(v))); return tr; }
@@ -334,6 +414,7 @@ async function logout() {
 
 function showSignedOut() {
   hidePanels();
+  $("sidebar").classList.add("hidden");
   $("welcome").classList.remove("hidden");
   $("userEmail").textContent = "Not signed in";
   $("loginBtn").classList.remove("hidden");
@@ -347,15 +428,46 @@ function showSignedIn(user) {
 }
 
 /* ADMIN (UI guard only; Firestore Security Rules are the real access control) */
+function listenShared() {
+  unsubs.push(db.collection("products").onSnapshot(snap => {
+    products = snap.docs.map(d => ({id: d.id, label: "Account ID", ...d.data()}))
+      .sort((x, y) => (x.sort || 0) - (y.sort || 0) || String(x.name).localeCompare(String(y.name)));
+    renderProducts();
+    renderProductAdmin();
+  }, e => showError("Cannot load products: " + e.message)));
+  unsubs.push(db.collection("settings").doc("store").onSnapshot(d => {
+    settings = d.exists ? d.data() : {};
+    applySettings();
+  }, e => showError("Cannot load settings: " + e.message)));
+}
+
+function applySettings() {
+  const name = settings.storeName || "HBD-Topup";
+  $("brandName").textContent = "⚡ " + name;
+  document.title = name + " — Premium Store";
+  $("announcement").textContent = settings.announcement || "";
+  $("announcement").classList.toggle("hidden", !settings.announcement);
+  if (!document.querySelector("#v-settings :focus")) {
+    $("sName").value = settings.storeName || "";
+    $("sPay").value = payNumber();
+    $("sAnnounce").value = settings.announcement || "";
+  }
+  if (selectedProduct) updatePayBox();
+}
+
+/* ADMIN (UI guard only; Firestore Security Rules are the real access control) */
 function showAdmin() {
   hidePanels();
-  $("adminPanel").classList.remove("hidden");
-  unsubscribeOrders = db.collection("orders").onSnapshot(snap => {
+  $("sidebar").classList.remove("hidden");
+  setView("orders");
+  listenShared();
+  unsubs.push(db.collection("orders").onSnapshot(snap => {
     const orders = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a, b) => millis(b) - millis(a));
     renderAdminOrders(orders);
     renderStats(orders);
     renderCustomers(orders);
-  }, e => showError("Cannot load orders: " + e.message));
+    renderMyOrders(orders.filter(o => o.uid === currentUser?.uid));
+  }, e => showError("Cannot load orders: " + e.message)));
 }
 
 function renderStats(orders) {
@@ -365,6 +477,7 @@ function renderStats(orders) {
   $("processingOrders").textContent = count("Processing");
   $("completedOrders").textContent = count("Completed");
   $("cancelledOrders").textContent = count("Cancelled");
+  $("revenue").textContent = money(orders.filter(o => o.status === "Completed").reduce((t, o) => t + Number(o.total || 0), 0));
 }
 
 function renderAdminOrders(orders) {
@@ -399,7 +512,7 @@ function renderAdminOrders(orders) {
     };
 
     const action = document.createElement("td");
-    action.append(select, save);
+    action.append(select, save, mkBtn("Edit", () => openOrderEditor(order), "secondary"), mkBtn("Delete", () => deleteOrder(order), "secondary"));
     tr.appendChild(action);
     body.appendChild(tr);
   });
@@ -436,38 +549,195 @@ function renderCustomers(orders) {
 /* CUSTOMER */
 function showCustomer(user) {
   hidePanels();
-  $("customerPanel").classList.remove("hidden");
-  $("customerGreeting").textContent = "Signed in as " + user.email;
-  renderProducts();
-  unsubscribeOrders = db.collection("orders").where("uid", "==", user.uid).onSnapshot(snap => {
+  $("sidebar").classList.add("hidden");
+  setView("store");
+  listenShared();
+  unsubs.push(db.collection("orders").where("uid", "==", user.uid).onSnapshot(snap => {
     renderMyOrders(snap.docs.map(d => ({id: d.id, ...d.data()})));
-  }, e => showError("Cannot load your orders: " + e.message));
+  }, e => showError("Cannot load your orders: " + e.message)));
 }
 
 function renderProducts() {
+  $("customerGreeting").textContent = "Signed in as " + (currentUser ? currentUser.email : "");
   const box = $("products");
   box.replaceChildren();
-  PRODUCTS.forEach(p => {
+  const list = products.filter(p => p.active !== false);
+  if (!list.length) {
+    const m = document.createElement("p");
+    m.textContent = "No products are available right now.";
+    box.appendChild(m);
+    return;
+  }
+  const make = (tag, cls, text) => {
+    const el = document.createElement(tag);
+    if (cls) el.className = cls;
+    el.textContent = text;
+    return el;
+  };
+  list.forEach(p => {
     const card = document.createElement("article");
     card.className = "product";
-    const make = (tag, cls, text) => {
-      const el = document.createElement(tag);
-      if (cls) el.className = cls;
-      el.textContent = text;
-      return el;
-    };
-    const btn = make("button", "", "Buy now");
-    btn.type = "button";
-    btn.onclick = () => openCheckout(p);
-    card.append(make("div", "product-icon", p.icon), make("h3", "", p.name),
-      make("p", "", p.description), make("div", "price", money(p.price)), btn);
+    if (p.offer) card.appendChild(make("span", "badge", p.offer));
+    const price = make("div", "price", money(p.price));
+    if (Number(p.oldPrice) > Number(p.price)) price.prepend(make("span", "old", money(p.oldPrice)));
+    card.append(make("div", "product-icon", p.icon || "🎁"), make("h3", "", p.name),
+      make("p", "", p.description || ""), price, mkBtn("Buy now", () => openCheckout(p)));
     box.appendChild(card);
   });
 }
 
+function showSelected() {
+  $("selectedProduct").textContent = selectedProduct.name + " — " + money(selectedProduct.price) + " • Required: " + selectedProduct.label;
+}
+
+/* ADMIN: PRODUCTS */
+function renderProductAdmin() {
+  $("seedBtn").classList.toggle("hidden", products.length > 0);
+  const body = $("productAdmin");
+  body.replaceChildren();
+  if (!products.length) { body.appendChild(emptyRow(5, "No products yet. Add one above or load the defaults.")); return; }
+  products.forEach(p => {
+    const tr = row([(p.icon || "") + " " + p.name,
+      money(p.price) + (Number(p.oldPrice) > 0 ? " (was " + money(p.oldPrice) + ")" : ""),
+      p.offer || "—", p.active === false ? "Hidden" : "Active"]);
+    const td = document.createElement("td");
+    td.append(mkBtn("Edit", () => editProduct(p), "secondary"), mkBtn("Delete", () => deleteProduct(p), "secondary"));
+    tr.appendChild(td);
+    body.appendChild(tr);
+  });
+}
+
+function clearProductForm() {
+  editingProductId = null;
+  ["pName","pIcon","pPrice","pOldPrice","pOffer","pLabel","pDesc"].forEach(id => $(id).value = "");
+  $("pSort").value = 0; $("pActive").checked = true; $("pPhone").checked = false;
+  $("productFormTitle").textContent = "➕ Add Product / Offer";
+}
+
+function editProduct(p) {
+  editingProductId = p.id;
+  $("pName").value = p.name || ""; $("pIcon").value = p.icon || ""; $("pPrice").value = p.price ?? "";
+  $("pOldPrice").value = p.oldPrice || ""; $("pOffer").value = p.offer || ""; $("pLabel").value = p.label || "";
+  $("pDesc").value = p.description || ""; $("pSort").value = p.sort || 0;
+  $("pActive").checked = p.active !== false; $("pPhone").checked = !!p.phone;
+  $("productFormTitle").textContent = "✏️ Edit Product";
+  $("productFormTitle").scrollIntoView({behavior: "smooth"});
+}
+
+async function saveProduct() {
+  const name = $("pName").value.trim();
+  const price = Number($("pPrice").value);
+  const oldPrice = $("pOldPrice").value.trim() === "" ? 0 : Number($("pOldPrice").value);
+  if (!name) { showError("Product name is required."); return; }
+  if (!Number.isFinite(price) || price <= 0) { showError("Enter a valid selling price."); return; }
+  if (!Number.isFinite(oldPrice) || oldPrice < 0) { showError("Enter a valid old price or leave it empty."); return; }
+  try {
+    clearError();
+    const ref = editingProductId ? db.collection("products").doc(editingProductId) : db.collection("products").doc();
+    await ref.set({
+      name, price, oldPrice,
+      description: $("pDesc").value.trim(), icon: $("pIcon").value.trim() || "🎁",
+      offer: $("pOffer").value.trim(), label: $("pLabel").value.trim() || "Account ID",
+      sort: Number($("pSort").value) || 0, active: $("pActive").checked, phone: $("pPhone").checked,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, {merge: true});
+    clearProductForm();
+  } catch (e) { showError("Could not save product: " + e.message); }
+}
+
+async function deleteProduct(p) {
+  if (!confirm("Delete \"" + p.name + "\"? Existing orders are kept.")) return;
+  try { await db.collection("products").doc(p.id).delete(); if (editingProductId === p.id) clearProductForm(); }
+  catch (e) { showError("Could not delete product: " + e.message); }
+}
+
+async function seedDefaults() {
+  try {
+    const batch = db.batch();
+    DEFAULT_PRODUCTS.forEach(({id, ...rest}, i) => batch.set(db.collection("products").doc(id),
+      {...rest, oldPrice: 0, offer: "", sort: i, active: true}));
+    await batch.commit();
+  } catch (e) { showError("Could not load defaults: " + e.message); }
+}
+
+/* ADMIN: SETTINGS */
+async function saveSettings() {
+  const pay = $("sPay").value.trim().replace(/[\s-]/g, "");
+  if (!BD_PHONE.test(pay)) { showError("Enter a valid payment number, e.g. 01XXXXXXXXX."); return; }
+  try {
+    clearError();
+    await db.collection("settings").doc("store").set({
+      storeName: $("sName").value.trim(), payNumber: pay, announcement: $("sAnnounce").value.trim(),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, {merge: true});
+    $("settingsMsg").textContent = "Settings saved.";
+    $("settingsMsg").classList.remove("hidden");
+    setTimeout(() => $("settingsMsg").classList.add("hidden"), 2500);
+  } catch (e) { showError("Could not save settings: " + e.message); }
+}
+
+/* ADMIN: ORDER EDITOR */
+const ORDER_FIELDS = [["customerName","Customer name"],["customerEmail","Customer email"],["product","Product"],
+  ["accountId","Account ID"],["phone","Phone"],["payment","Payment method"],["trxId","Transaction ID"],
+  ["total","Total (৳)"],["status","Status"],["note","Admin note"]];
+
+function openOrderEditor(o) {
+  editingOrderId = o.id;
+  $("editOrderId").textContent = o.id;
+  const box = $("orderEditFields");
+  box.replaceChildren();
+  ORDER_FIELDS.forEach(([k, label]) => {
+    const wrap = document.createElement("div"), l = document.createElement("label");
+    l.textContent = label; l.htmlFor = "oe_" + k;
+    let input;
+    if (k === "status" || k === "payment") {
+      input = document.createElement("select");
+      const base = k === "status" ? STATUSES : PAYMENTS;
+      (o[k] && !base.includes(o[k]) ? [...base, o[k]] : base).forEach(v => {
+        const op = document.createElement("option"); op.value = op.textContent = v; input.appendChild(op);
+      });
+    } else {
+      input = document.createElement("input");
+      if (k === "total") { input.type = "number"; input.min = "0"; input.step = "any"; }
+    }
+    input.id = "oe_" + k;
+    input.value = o[k] ?? (k === "status" ? "Pending" : "");
+    wrap.append(l, input);
+    box.appendChild(wrap);
+  });
+  $("orderEditor").classList.remove("hidden");
+  $("orderEditor").scrollIntoView({behavior: "smooth"});
+}
+
+function closeOrderEditor() { editingOrderId = null; $("orderEditor").classList.add("hidden"); }
+
+async function saveOrderEdit() {
+  if (!editingOrderId) return;
+  const data = {};
+  ORDER_FIELDS.forEach(([k]) => { const v = $("oe_" + k).value.trim(); data[k] = k === "total" ? Number(v) : v; });
+  if (!Number.isFinite(data.total) || data.total < 0) { showError("Enter a valid total."); return; }
+  try {
+    clearError();
+    data.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+    await db.collection("orders").doc(editingOrderId).update(data);
+    closeOrderEditor();
+  } catch (e) { showError("Could not save order: " + e.message); }
+}
+
+async function deleteOrder(o) {
+  if (!confirm("Delete order " + o.id + " permanently?")) return;
+  try {
+    const batch = db.batch();
+    batch.delete(db.collection("orders").doc(o.id));
+    if (o.payment && o.trxId) batch.delete(db.collection("trxIds").doc(o.payment + "_" + o.trxId));
+    await batch.commit();
+    if (editingOrderId === o.id) closeOrderEditor();
+  } catch (e) { showError("Could not delete order: " + e.message); }
+}
+
 function updatePayBox() {
   const method = $("payment").value;
-  $("payNumber").textContent = PAY_NUMBER;
+  $("payNumber").textContent = payNumber();
   $("payMethod").textContent = method;
   $("payApp").textContent = method;
   $("payAmount").textContent = selectedProduct ? money(selectedProduct.price) : "";
@@ -475,7 +745,7 @@ function updatePayBox() {
 
 async function copyNumber() {
   try {
-    await navigator.clipboard.writeText(PAY_NUMBER);
+    await navigator.clipboard.writeText(payNumber());
     $("copyBtn").textContent = "Copied ✓";
   } catch (_) {
     $("copyBtn").textContent = "Copy failed";
@@ -485,7 +755,7 @@ async function copyNumber() {
 
 function openCheckout(product) {
   selectedProduct = product;
-  $("selectedProduct").textContent = product.name + " — " + money(product.price) + " • Required: " + product.label;
+  showSelected();
   $("accountId").placeholder = "Enter " + product.label.toLowerCase();
   $("accountId").value = $("phone").value = $("trxId").value = "";
   $("payment").value = PAYMENTS[0];
@@ -506,6 +776,13 @@ function cancelCheckout() {
 
 async function placeOrder() {
   if (!currentUser || !selectedProduct) { showError("Sign in and select a product first."); return; }
+  const live = products.find(p => p.id === selectedProduct.id);
+  if (!live || live.active === false) { showError("This product is no longer available."); return; }
+  if (Number(live.price) !== Number(selectedProduct.price)) {
+    selectedProduct = live; showSelected(); updatePayBox();
+    showError("The price changed to " + money(live.price) + ". Check the amount and submit again.");
+    return;
+  }
 
   const accountId = $("accountId").value.trim();
   const phone = $("phone").value.trim().replace(/[\s-]/g, "");
@@ -548,7 +825,7 @@ async function placeOrder() {
     $("closeBtn").classList.remove("hidden");
   } catch (e) {
     showError(e.code === "permission-denied"
-      ? "This Transaction ID was already used or is invalid. Check it and try again."
+      ? "Order rejected: this Transaction ID may already be used, or the product/price changed. Check and try again."
       : "Order submission failed: " + e.message);
   } finally {
     $("submitOrderBtn").disabled = false;
@@ -570,6 +847,13 @@ $("logoutBtn").addEventListener("click", logout);
 $("submitOrderBtn").addEventListener("click", placeOrder);
 $("payment").addEventListener("change", updatePayBox);
 $("copyBtn").addEventListener("click", copyNumber);
+$("sidebar").addEventListener("click", e => { const b = e.target.closest("button[data-view]"); if (b) setView(b.dataset.view); });
+$("saveProductBtn").addEventListener("click", saveProduct);
+$("clearProductBtn").addEventListener("click", clearProductForm);
+$("seedBtn").addEventListener("click", seedDefaults);
+$("saveSettingsBtn").addEventListener("click", saveSettings);
+$("saveOrderBtn").addEventListener("click", saveOrderEdit);
+$("closeEditorBtn").addEventListener("click", closeOrderEditor);
 $("cancelBtn").addEventListener("click", cancelCheckout);
 $("closeBtn").addEventListener("click", cancelCheckout);
 ["accountId", "phone", "trxId"].forEach(id => $(id).addEventListener("keydown", e => { if (e.key === "Enter") placeOrder(); }));
