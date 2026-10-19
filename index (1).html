@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#080d19">
+<meta name="color-scheme" content="dark">
+<title>HBD-Topup — Premium Store</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E⚡%3C/text%3E%3C/svg%3E">
+<script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<style>
+:root{--bg:#080d19;--panel:#111c30;--line:#293750;--text:#f8fafc;--muted:#9aabc3;--purple:#7c3aed;--blue:#2563eb;--green:#22c55e;--red:#ef4444}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:var(--text);background:radial-gradient(circle at 10% 0,#24164c 0,transparent 30%),radial-gradient(circle at 100% 40%,#092d40 0,transparent 25%),var(--bg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+button,input,select{font:inherit}
+header{position:sticky;top:0;z-index:10;padding:15px 5%;background:#080d19ed;backdrop-filter:blur(16px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.brand{font-size:22px;font-weight:900;color:#c4b5fd}
+.header-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+#userEmail{font-size:12px;color:var(--muted);overflow-wrap:anywhere}
+main{max-width:1150px;margin:28px auto;padding:0 16px 60px}
+.panel{padding:22px;margin-bottom:18px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(145deg,#131f35,#0d1525)}
+h1{font-size:clamp(25px,4vw,38px);margin:0 0 10px}
+h2{font-size:21px;margin:0 0 14px}
+p{color:var(--muted);line-height:1.6}
+button{cursor:pointer;padding:12px 16px;border:0;border-radius:10px;background:linear-gradient(135deg,var(--purple),var(--blue));color:#fff;font-weight:800}
+button:disabled{opacity:.55;cursor:not-allowed}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #a78bfa;outline-offset:2px}
+.secondary{background:#263650}
+input,select{width:100%;padding:13px;margin:7px 0 15px;border:1px solid #35445d;border-radius:9px;color:#fff;background:#080f1d}
+input:focus,select:focus{border-color:#8b5cf6}
+label{font-size:12px;color:#cbd5e1;font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.stat{padding:18px;border-radius:13px;background:#192740;border:1px solid var(--line)}
+.stat span{color:var(--muted);font-size:12px}
+.stat strong{display:block;font-size:29px;margin-top:9px;color:#c4b5fd}
+.products{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:13px}
+.product{border:1px solid var(--line);border-radius:15px;padding:17px;background:#101a2c;display:flex;flex-direction:column}
+.product-icon{font-size:29px;margin-bottom:12px}
+.product h3{font-size:15px;margin:0 0 6px}
+.product p{margin:0;flex:1;font-size:13px}
+.price{font-size:22px;font-weight:900;margin:12px 0}
+.product button{width:100%}
+.table-wrap{width:100%;overflow-x:auto}
+table{width:100%;min-width:700px;border-collapse:collapse}
+.wide{min-width:1000px}
+th,td{padding:12px 10px;border-bottom:1px solid var(--line);text-align:left;font-size:12px;vertical-align:top}
+th{color:#c4b5fd}
+td select{min-width:115px;margin:0 0 5px;padding:8px}
+td button{padding:8px 12px}
+.notice{padding:12px;border-radius:10px;background:#17243a;color:#cbd5e1;font-size:12px;line-height:1.6;margin-bottom:14px}
+.hidden{display:none!important}
+.message{padding:13px;margin-top:12px;border-radius:10px;background:#152d29;color:#a7f3d0;overflow-wrap:anywhere}
+.error{background:#351b28;color:#fecaca}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+footer{text-align:center;padding:30px 15px;border-top:1px solid var(--line);color:#7e8ba1;font-size:12px}
+@media(max-width:520px){header{padding:13px}.brand{font-size:18px}.panel{padding:16px}main{padding-left:12px;padding-right:12px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">⚡ HBD-Topup</div>
+  <div class="header-actions">
+    <span id="userEmail">Checking session…</span>
+    <button id="loginBtn" type="button" class="hidden">Google Login</button>
+    <button id="logoutBtn" type="button" class="secondary hidden">Logout</button>
+  </div>
+</header>
+
+<main>
+  <section id="loading" class="panel"><p>Loading…</p></section>
+
+  <section id="welcome" class="panel hidden">
+    <h1>Power Up Your Digital World.</h1>
+    <p>Premium gaming top-ups, mobile recharge and digital products.</p>
+    <div class="notice">Sign in with Google to continue. Your account will be classified as Admin or Customer.</div>
+    <button id="welcomeLoginBtn" type="button">Continue with Google</button>
+  </section>
+
+  <section id="adminPanel" class="hidden">
+    <div class="panel">
+      <h1>🛡️ Admin Dashboard</h1>
+      <p>Administrator access • HBD-Topup</p>
+      <div class="grid">
+        <div class="stat"><span>Total Orders</span><strong id="totalOrders">0</strong></div>
+        <div class="stat"><span>Pending</span><strong id="pendingOrders">0</strong></div>
+        <div class="stat"><span>Processing</span><strong id="processingOrders">0</strong></div>
+        <div class="stat"><span>Completed</span><strong id="completedOrders">0</strong></div>
+        <div class="stat"><span>Cancelled</span><strong id="cancelledOrders">0</strong></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>📦 All Orders</h2>
+      <div class="table-wrap">
+        <table class="wide">
+          <thead><tr><th>Order ID</th><th>Date</th><th>Customer</th><th>Product</th><th>Account ID</th><th>Phone</th><th>Payment</th><th>Total</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="adminOrders"><tr><td colspan="10">Waiting for login…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>👥 Customer List</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Name</th><th>Email</th><th>Orders</th></tr></thead>
+          <tbody id="customerList"><tr><td colspan="3">No customers loaded.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="customerPanel" class="hidden">
+    <div class="panel">
+      <h1>👤 Customer Panel</h1>
+      <p id="customerGreeting"></p>
+      <h2>Choose a Top Up</h2>
+      <div class="products" id="products"></div>
+    </div>
+
+    <div id="checkoutPanel" class="panel hidden">
+      <h2>Complete Your Order</h2>
+      <div id="selectedProduct" class="notice"></div>
+      <div id="checkoutForm">
+        <label for="accountId">Player ID / UID / Account</label>
+        <input id="accountId" maxlength="100" autocomplete="off" placeholder="Enter the correct account ID">
+
+        <label for="phone">Contact Number</label>
+        <input id="phone" type="tel" inputmode="tel" maxlength="25" autocomplete="tel" placeholder="01XXXXXXXXX">
+
+        <label for="payment">Payment Method</label>
+        <select id="payment">
+          <option value="bKash">bKash</option>
+          <option value="Nagad">Nagad</option>
+        </select>
+
+        <div class="notice">This site records orders only. Payment is NOT automatically verified and top-ups are NOT automatically delivered. Admin must verify payment separately before marking an order Completed.</div>
+        <div class="actions">
+          <button id="submitOrderBtn" type="button">Submit Order</button>
+          <button id="cancelBtn" type="button" class="secondary">Cancel</button>
+        </div>
+      </div>
+      <div id="orderMessage" class="message hidden" role="status"></div>
+      <button id="closeBtn" type="button" class="secondary hidden" style="margin-top:12px">Close</button>
+    </div>
+
+    <div class="panel">
+      <h2>🧾 My Orders</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Order ID</th><th>Product</th><th>Total</th><th>Status</th><th>Date</th></tr></thead>
+          <tbody id="myOrders"><tr><td colspan="5">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="setupInfo" class="panel hidden"><h2>Setup Required</h2><p id="setupMessage"></p></section>
+  <section id="errorBox" class="panel error hidden" role="alert"></section>
+</main>
+
+<footer>© 2026 HBD-Topup • Premium Digital Store</footer>
+
+<script>
+"use strict";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCpqWELaO5-FMOsBrCGezT21zFXL0BEF4c",
+  authDomain: "topup-ef926.firebaseapp.com",
+  projectId: "topup-ef926",
+  storageBucket: "topup-ef926.firebasestorage.app",
+  messagingSenderId: "612774693543",
+  appId: "1:612774693543:web:604ddd5fc2eec28ebca982",
+  measurementId: "G-Y1R820ZNWG"
+};
+
+const ADMIN_EMAIL = "kingofhaven744@gmail.com";
+const STATUSES = ["Pending", "Processing", "Completed", "Cancelled"];
+const PAYMENTS = ["bKash", "Nagad"];
+const BD_PHONE = /^(?:\+?88)?01[3-9]\d{8}$/;
+
+const PRODUCTS = [
+  {id:"ff-diamonds",name:"Free Fire Diamonds",description:"Free Fire diamond top-up",price:89,icon:"🔥",label:"Player ID / UID"},
+  {id:"pubg-uc",name:"PUBG Mobile UC",description:"PUBG UC top-up",price:120,icon:"🎯",label:"Player ID"},
+  {id:"mlbb-diamonds",name:"Mobile Legends",description:"MLBB diamond top-up",price:149,icon:"⚔️",label:"User ID"},
+  {id:"robux",name:"Roblox Robux",description:"Robux digital product",price:399,icon:"🧱",label:"Username"},
+  {id:"cod-cp",name:"COD Mobile CP",description:"Call of Duty Mobile",price:299,icon:"🎮",label:"Player ID"},
+  {id:"mobile-recharge",name:"Mobile Recharge",description:"Mobile balance recharge",price:100,icon:"📱",label:"Mobile number",phone:true},
+  {id:"google-play",name:"Google Play",description:"Digital gift balance",price:299,icon:"▶️",label:"Email / Account"},
+  {id:"steam-wallet",name:"Steam Wallet",description:"Steam digital wallet",price:599,icon:"🕹️",label:"Steam account"}
+];
+
+let auth = null, db = null, currentUser = null, selectedProduct = null;
+let unsubscribeOrders = null, loginInProgress = false, authRun = 0, keepError = false;
+
+const $ = id => document.getElementById(id);
+const isAdmin = u => !!(u && u.email && u.emailVerified && u.email.toLowerCase() === ADMIN_EMAIL.toLowerCase());
+const money = v => "৳" + Number(v || 0).toLocaleString("en-US");
+const millis = o => o.createdAt?.toMillis?.() || 0;
+const formatDate = o => o.createdAt?.toDate ? o.createdAt.toDate().toLocaleString() : "Just now";
+
+function showError(msg) { $("errorBox").textContent = msg; $("errorBox").classList.remove("hidden"); }
+function clearError() { $("errorBox").textContent = ""; $("errorBox").classList.add("hidden"); }
+function showSetup(msg) { $("setupMessage").textContent = msg; $("setupInfo").classList.remove("hidden"); }
+function hideSetup() { $("setupInfo").classList.add("hidden"); }
+function hidePanels() { ["loading","welcome","adminPanel","customerPanel"].forEach(id => $(id).classList.add("hidden")); }
+function cleanupListener() { if (unsubscribeOrders) { unsubscribeOrders(); unsubscribeOrders = null; } }
+
+function cell(text) { const td = document.createElement("td"); td.textContent = text; return td; }
+function row(values) { const tr = document.createElement("tr"); values.forEach(v => tr.appendChild(cell(v))); return tr; }
+function emptyRow(span, text) {
+  const tr = document.createElement("tr"), td = cell(text);
+  td.colSpan = span; tr.appendChild(td); return tr;
+}
+
+function isConfigured() {
+  return ["apiKey","authDomain","projectId","appId"].every(k => {
+    const v = firebaseConfig[k];
+    return typeof v === "string" && v.trim() && !v.includes("PASTE_YOUR_") && !v.startsWith("YOUR_");
+  });
+}
+
+/* INITIALIZE */
+function init() {
+  hidePanels();
+  if (!isConfigured()) {
+    $("welcome").classList.remove("hidden");
+    $("userEmail").textContent = "Not signed in";
+    showSetup("Firebase config is missing. Fill in firebaseConfig, enable Google Authentication and create a Firestore Database.");
+    return;
+  }
+  if (typeof firebase === "undefined") {
+    $("welcome").classList.remove("hidden");
+    $("userEmail").textContent = "Not signed in";
+    showError("Could not load Firebase. Check your internet connection or ad-blocker and reload the page.");
+    return;
+  }
+  try {
+    firebase.initializeApp(firebaseConfig);
+    auth = firebase.auth();
+    db = firebase.firestore();
+  } catch (e) {
+    $("welcome").classList.remove("hidden");
+    showError("Firebase initialization failed: " + e.message);
+    return;
+  }
+
+  auth.getRedirectResult().catch(e =>
+    showError("Google redirect login failed (" + (e.code || "unknown") + "): " + e.message));
+
+  auth.onAuthStateChanged(async user => {
+    const run = ++authRun;
+    cleanupListener();
+    if (keepError) keepError = false; else clearError();
+    currentUser = user || null;
+    selectedProduct = null;
+    $("checkoutPanel").classList.add("hidden");
+
+    if (!user) { showSignedOut(); return; }
+
+    if (!user.email || !user.emailVerified) {
+      keepError = true;
+      showError("A verified Google account email is required.");
+      try { await auth.signOut(); } catch (_) {}
+      return;
+    }
+    if (run !== authRun) return;
+
+    showSignedIn(user);
+    if (isAdmin(user)) showAdmin(); else showCustomer(user);
+  });
+}
+
+/* AUTH */
+async function login() {
+  if (!auth) {
+    showSetup("Google Login is not ready. Check the Firebase config, enable Google in Authentication > Sign-in method, and add this domain under Authentication > Settings > Authorized domains.");
+    return;
+  }
+  if (loginInProgress) return;
+  loginInProgress = true;
+  clearError();
+  $("loginBtn").disabled = $("welcomeLoginBtn").disabled = true;
+
+  const provider = new firebase.auth.GoogleAuthProvider();
+  provider.setCustomParameters({prompt: "select_account"});
+
+  try {
+    await auth.signInWithPopup(provider);
+  } catch (e) {
+    if (e.code === "auth/popup-closed-by-user" || e.code === "auth/cancelled-popup-request") {
+      /* user cancelled: stay quiet */
+    } else if (e.code === "auth/popup-blocked") {
+      try { await auth.signInWithRedirect(provider); return; }
+      catch (re) { showError("Google login failed (" + (re.code || "unknown") + "): " + re.message); }
+    } else {
+      const help = {
+        "auth/unauthorized-domain": " This domain is not in Firebase Authorized domains.",
+        "auth/operation-not-allowed": " Enable the Google provider in Firebase Authentication.",
+        "auth/invalid-api-key": " The Firebase apiKey is incorrect.",
+        "auth/network-request-failed": " Check your internet connection."
+      };
+      showError("Google login failed (" + (e.code || "unknown") + "): " + e.message + (help[e.code] || ""));
+    }
+  } finally {
+    loginInProgress = false;
+    $("loginBtn").disabled = $("welcomeLoginBtn").disabled = false;
+  }
+}
+
+async function logout() {
+  if (!auth) return;
+  try { await auth.signOut(); } catch (e) { showError("Logout failed: " + e.message); }
+}
+
+function showSignedOut() {
+  hidePanels();
+  $("welcome").classList.remove("hidden");
+  $("userEmail").textContent = "Not signed in";
+  $("loginBtn").classList.remove("hidden");
+  $("logoutBtn").classList.add("hidden");
+}
+function showSignedIn(user) {
+  $("userEmail").textContent = user.email;
+  $("loginBtn").classList.add("hidden");
+  $("logoutBtn").classList.remove("hidden");
+  hideSetup();
+}
+
+/* ADMIN (UI guard only; Firestore Security Rules are the real access control) */
+function showAdmin() {
+  hidePanels();
+  $("adminPanel").classList.remove("hidden");
+  unsubscribeOrders = db.collection("orders").onSnapshot(snap => {
+    const orders = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a, b) => millis(b) - millis(a));
+    renderAdminOrders(orders);
+    renderStats(orders);
+    renderCustomers(orders);
+  }, e => showError("Cannot load orders: " + e.message));
+}
+
+function renderStats(orders) {
+  const count = s => orders.filter(o => (o.status || "Pending") === s).length;
+  $("totalOrders").textContent = orders.length;
+  $("pendingOrders").textContent = count("Pending");
+  $("processingOrders").textContent = count("Processing");
+  $("completedOrders").textContent = count("Completed");
+  $("cancelledOrders").textContent = count("Cancelled");
+}
+
+function renderAdminOrders(orders) {
+  const body = $("adminOrders");
+  body.replaceChildren();
+  if (!orders.length) { body.appendChild(emptyRow(10, "No orders yet.")); return; }
+
+  orders.forEach(order => {
+    const status = STATUSES.includes(order.status) ? order.status : "Pending";
+    const tr = row([
+      order.id, formatDate(order), order.customerEmail || "—", order.product || "—",
+      order.accountId || "—", order.phone || "—", order.payment || "—",
+      money(order.total), status
+    ]);
+
+    const select = document.createElement("select");
+    select.setAttribute("aria-label", "Status for order " + order.id);
+    STATUSES.forEach(s => {
+      const o = document.createElement("option");
+      o.value = o.textContent = s;
+      o.selected = s === status;
+      select.appendChild(o);
+    });
+
+    const save = document.createElement("button");
+    save.type = "button";
+    save.textContent = "Save";
+    save.onclick = async () => {
+      save.disabled = true;
+      await updateStatus(order.id, select.value);
+      save.disabled = false;
+    };
+
+    const action = document.createElement("td");
+    action.append(select, save);
+    tr.appendChild(action);
+    body.appendChild(tr);
+  });
+}
+
+async function updateStatus(orderId, status) {
+  if (!isAdmin(currentUser)) { showError("Admin permission required."); return; }
+  if (!STATUSES.includes(status)) { showError("Invalid order status."); return; }
+  try {
+    clearError();
+    await db.collection("orders").doc(orderId).update({
+      status,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } catch (e) {
+    showError("Status update failed: " + e.message);
+  }
+}
+
+function renderCustomers(orders) {
+  const map = new Map();
+  orders.forEach(o => {
+    const email = o.customerEmail || "Unknown";
+    const item = map.get(email) || {name: o.customerName || "Customer", count: 0};
+    item.count++;
+    map.set(email, item);
+  });
+  const body = $("customerList");
+  body.replaceChildren();
+  if (!map.size) { body.appendChild(emptyRow(3, "No customers yet.")); return; }
+  map.forEach((c, email) => body.appendChild(row([c.name, email, String(c.count)])));
+}
+
+/* CUSTOMER */
+function showCustomer(user) {
+  hidePanels();
+  $("customerPanel").classList.remove("hidden");
+  $("customerGreeting").textContent = "Signed in as " + user.email;
+  renderProducts();
+  unsubscribeOrders = db.collection("orders").where("uid", "==", user.uid).onSnapshot(snap => {
+    renderMyOrders(snap.docs.map(d => ({id: d.id, ...d.data()})));
+  }, e => showError("Cannot load your orders: " + e.message));
+}
+
+function renderProducts() {
+  const box = $("products");
+  box.replaceChildren();
+  PRODUCTS.forEach(p => {
+    const card = document.createElement("article");
+    card.className = "product";
+    const make = (tag, cls, text) => {
+      const el = document.createElement(tag);
+      if (cls) el.className = cls;
+      el.textContent = text;
+      return el;
+    };
+    const btn = make("button", "", "Buy now");
+    btn.type = "button";
+    btn.onclick = () => openCheckout(p);
+    card.append(make("div", "product-icon", p.icon), make("h3", "", p.name),
+      make("p", "", p.description), make("div", "price", money(p.price)), btn);
+    box.appendChild(card);
+  });
+}
+
+function openCheckout(product) {
+  selectedProduct = product;
+  $("selectedProduct").textContent = product.name + " — " + money(product.price) + " • Required: " + product.label;
+  $("accountId").placeholder = "Enter " + product.label.toLowerCase();
+  $("accountId").value = $("phone").value = "";
+  $("payment").value = PAYMENTS[0];
+  $("orderMessage").classList.add("hidden");
+  $("closeBtn").classList.add("hidden");
+  $("checkoutForm").classList.remove("hidden");
+  $("checkoutPanel").classList.remove("hidden");
+  clearError();
+  $("checkoutPanel").scrollIntoView({behavior: "smooth", block: "start"});
+  $("accountId").focus({preventScroll: true});
+}
+
+function cancelCheckout() {
+  selectedProduct = null;
+  $("checkoutPanel").classList.add("hidden");
+}
+
+async function placeOrder() {
+  if (!currentUser || !selectedProduct) { showError("Sign in and select a product first."); return; }
+
+  const accountId = $("accountId").value.trim();
+  const phone = $("phone").value.trim().replace(/[\s-]/g, "");
+  const payment = $("payment").value;
+
+  if (!accountId || accountId.length > 100) { showError("Please enter a valid " + selectedProduct.label.toLowerCase() + "."); return; }
+  if (selectedProduct.phone && !BD_PHONE.test(accountId.replace(/[\s-]/g, ""))) { showError("Please enter a valid Bangladeshi mobile number to recharge."); return; }
+  if (!BD_PHONE.test(phone)) { showError("Please enter a valid contact number, e.g. 01XXXXXXXXX."); return; }
+  if (!PAYMENTS.includes(payment)) { showError("Invalid payment method."); return; }
+
+  clearError();
+  $("submitOrderBtn").disabled = true;
+
+  try {
+    const ref = await db.collection("orders").add({
+      uid: currentUser.uid,
+      customerEmail: currentUser.email,
+      customerName: currentUser.displayName || "",
+      product: selectedProduct.name,
+      productId: selectedProduct.id,
+      accountId, phone, payment,
+      total: selectedProduct.price,
+      status: "Pending",
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    selectedProduct = null;
+    $("checkoutForm").classList.add("hidden");
+    $("orderMessage").textContent = "Order submitted successfully. Order ID: " + ref.id + ". Current status: Pending.";
+    $("orderMessage").classList.remove("hidden");
+    $("closeBtn").classList.remove("hidden");
+  } catch (e) {
+    showError("Order submission failed: " + e.message);
+  } finally {
+    $("submitOrderBtn").disabled = false;
+  }
+}
+
+function renderMyOrders(orders) {
+  const body = $("myOrders");
+  body.replaceChildren();
+  if (!orders.length) { body.appendChild(emptyRow(5, "You have no orders yet.")); return; }
+  orders.sort((a, b) => millis(b) - millis(a))
+    .forEach(o => body.appendChild(row([o.id, o.product || "—", money(o.total), o.status || "Pending", formatDate(o)])));
+}
+
+/* EVENTS */
+$("loginBtn").addEventListener("click", login);
+$("welcomeLoginBtn").addEventListener("click", login);
+$("logoutBtn").addEventListener("click", logout);
+$("submitOrderBtn").addEventListener("click", placeOrder);
+$("cancelBtn").addEventListener("click", cancelCheckout);
+$("closeBtn").addEventListener("click", cancelCheckout);
+["accountId", "phone"].forEach(id => $(id).addEventListener("keydown", e => { if (e.key === "Enter") placeOrder(); }));
+
+window.addEventListener("load", init);
+</script>
+</body>
+</html>
